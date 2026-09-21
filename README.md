@@ -1,4 +1,4 @@
-# Nuggi – Baby-Tracker als iOS-PWA
+# Nuggi – Baby-Tracker as iOS-PWA
 
 Nuggi tracks a baby's sleep, feeds and measurements, predicts the next nap, shows a
 weekly dashboard and sends push reminders. It runs on iPhones as an installed
