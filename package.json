@@ -13,7 +13,8 @@
     "seed": "tsx --env-file-if-exists=.env.local scripts/seed.ts",
     "family:create": "tsx --env-file-if-exists=.env.local scripts/family-create.ts",
     "icons": "tsx scripts/icons.ts",
-    "db:migrate": "tsx --env-file-if-exists=.env.local scripts/migrate.ts"
+    "db:migrate": "tsx --env-file-if-exists=.env.local scripts/migrate.ts",
+    "dev:db": "tsx scripts/dev-db.ts"
   },
   "dependencies": {
     "@serwist/next": "^9.5.12",
@@ -33,6 +34,7 @@
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8",
+    "@electric-sql/pglite-socket": "^0.2.11",
     "@serwist/cli": "^9.5.12",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^24.13.6",

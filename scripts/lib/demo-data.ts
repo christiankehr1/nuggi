@@ -93,7 +93,12 @@ export function generateDemoEvents(opts: DemoOptions): DemoEvent[] {
     const cuts: number[] = [];
     for (let w = 0; w < wakings; w++) cuts.push(120 + rand() * (totalNight - 240));
     cuts.sort((a, b) => a - b);
+    // keep wakings at least 90 minutes apart so segments never overlap
+    for (let i = 1; i < cuts.length; i++) {
+      if (cuts[i]! - cuts[i - 1]! < 90) cuts[i] = cuts[i - 1]! + 90;
+    }
     for (const cut of cuts) {
+      if (cut > totalNight - 60) break;
       const end = new Date(local(prevDayKey, bedMinutePrev, tz).getTime() + cut * 60000);
       events.push({
         kind: "sleep",

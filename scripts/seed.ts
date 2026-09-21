@@ -14,6 +14,15 @@ const TZ = "Europe/Zurich";
 const DEMO_NAME = "Demo-Familie Nuggi";
 const OTHER_NAME = "Demo-Familie Zwei";
 
+/** Insert in chunks: keeps request bodies small for PostgREST. */
+async function insertChunked(table: string, rows: Record<string, unknown>[], size = 40) {
+  const supabase = scriptClient();
+  for (let i = 0; i < rows.length; i += size) {
+    const { error } = await supabase.from(table).insert(rows.slice(i, i + size));
+    if (error) throw error;
+  }
+}
+
 async function createFamily(name: string) {
   const supabase = scriptClient();
   const code = generateFamilyCode();
@@ -66,11 +75,11 @@ async function main() {
     side: e.side,
     note: e.note,
   }));
-  const { error: eErr } = await supabase.from("events").insert(rows);
-  if (eErr) throw eErr;
+  await insertChunked("events", rows);
 
   const measurements = generateDemoMeasurements({ now, birthDate, tz: TZ });
-  const { error: msErr } = await supabase.from("measurements").insert(
+  await insertChunked(
+    "measurements",
     measurements.map((m) => ({
       family_id: fam.id,
       baby_id: baby.id,
@@ -81,7 +90,6 @@ async function main() {
       note: m.note,
     })),
   );
-  if (msErr) throw msErr;
 
   // --- Family 2 (isolation) ----------------------------------------------
   const other = await createFamily(OTHER_NAME);
@@ -106,7 +114,8 @@ async function main() {
     napsPerDay: 2,
     bottleMl: 180,
   });
-  const { error: oeErr } = await supabase.from("events").insert(
+  await insertChunked(
+    "events",
     otherEvents.map((e) => ({
       family_id: other.id,
       baby_id: otherBaby.id,
@@ -119,7 +128,6 @@ async function main() {
       note: e.note,
     })),
   );
-  if (oeErr) throw oeErr;
 
   console.log("");
   console.log("Seed fertig.");
