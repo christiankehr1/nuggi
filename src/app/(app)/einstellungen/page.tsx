@@ -20,6 +20,18 @@ export default async function EinstellungenPage() {
         <BabiesSection babies={babies} tz={tz} />
       </Suspense>
       <FamilySection family={family} member={member} members={members} />
+      <section className="card flex flex-col gap-3 p-5">
+        <h2 className="text-sm font-medium text-muted">{de.settings.export}</h2>
+        <p className="text-sm text-muted">{de.settings.exportHint}</p>
+        <div className="grid grid-cols-2 gap-2">
+          <a href="/api/export?type=events" className="btn btn-secondary" download>
+            {de.settings.exportEvents}
+          </a>
+          <a href="/api/export?type=measurements" className="btn btn-secondary" download>
+            {de.settings.exportMeasurements}
+          </a>
+        </div>
+      </section>
       <p className="pt-2 text-center text-xs text-muted/70">{de.app.disclaimer}</p>
     </div>
   );

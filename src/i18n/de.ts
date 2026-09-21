@@ -265,6 +265,8 @@ export const de = {
     export: "Datenexport",
     exportHint: "Alle Einträge und Messungen dieser Familie als CSV.",
     exportButton: "CSV herunterladen",
+    exportEvents: "Einträge (CSV)",
+    exportMeasurements: "Messungen (CSV)",
     version: "Version",
     deleteBaby: "Baby löschen",
     deleteBabyConfirm: (name: string) =>

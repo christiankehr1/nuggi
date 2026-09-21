@@ -123,9 +123,12 @@ export function observe(
     const next = sleeps[i + 1];
     if (!next) continue;
     const gap = minutesBetween(s.endedAt!, next.startedAt);
-    // daytime only: the wake period must start outside the night window
-    const daytime = !isInLocalWindow(s.endedAt!, settings.nightStart, settings.nightEnd, tz);
-    if (daytime && gap >= 10 && gap <= 8 * 60) wakeWindows.push(gap);
+    // daytime only: a night→night gap inside the night window is a night waking
+    const nightWaking =
+      s.subtype === "night" &&
+      next.subtype === "night" &&
+      isInLocalWindow(s.endedAt!, settings.nightStart, settings.nightEnd, tz);
+    if (!nightWaking && gap >= 10 && gap <= 8 * 60) wakeWindows.push(gap);
   }
   return { wakeWindows, napLengths };
 }
