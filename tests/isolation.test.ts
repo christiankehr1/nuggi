@@ -74,7 +74,7 @@ describe("family isolation", () => {
       expect(rawFamilyParams, `${rel(file)} accepts a family id`).toEqual([]);
       // Reads/updates/deletes go through withFamily, inserts through ownedBy.
       const selectsUpdatesDeletes = (src.match(/\.(select|update|delete)\(/g) ?? []).length;
-      const inserts = (src.match(/\.insert\(/g) ?? []).length;
+      const inserts = (src.match(/\.(insert|upsert)\(/g) ?? []).length;
       const withFamilyUses = (src.match(/withFamily\(/g) ?? []).length;
       const ownedByUses = (src.match(/ownedBy\(scope/g) ?? []).length;
       // `.select()` after an insert is a projection, not a query: subtract inserts.

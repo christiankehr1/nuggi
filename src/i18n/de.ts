@@ -248,6 +248,8 @@ export const de = {
       "Damit Erinnerungen ankommen, muss Nuggi auf dem Home-Bildschirm installiert sein. Öffne die App dann von dort.",
     remindersNotConfigured: "Push ist auf dem Server noch nicht eingerichtet (VAPID-Schlüssel fehlen).",
     disableReminders: "Auf diesem Gerät deaktivieren",
+    remindersHint:
+      "Erinnerungen kommen etwa 15 Minuten vor dem erwarteten Nickerchen, zur nächsten Mahlzeit und vor der Schlafenszeit – auf alle Geräte der Familie.",
     reminderNap: "Nickerchen",
     reminderFeed: "Mahlzeiten",
     reminderBedtime: "Schlafenszeit",
@@ -283,6 +285,12 @@ export const de = {
     step3: "Tippe oben rechts auf „Hinzufügen“",
     later: "Später",
     notSafari: "Öffne diese Seite in Safari, um Nuggi zu installieren.",
+  },
+
+  pwa: {
+    synced: (n: number) => (n === 1 ? "1 Eintrag nachgetragen, der offline gespeichert war." : `${n} Einträge nachgetragen, die offline gespeichert waren.`),
+    offline: "Offline – Einträge werden gespeichert und später gesendet.",
+    updateAvailable: "Neue Version verfügbar – App neu laden.",
   },
 
   push: {
