@@ -297,6 +297,37 @@ export const de = {
     testBody: "So sehen Erinnerungen aus. Schlaf gut!",
   },
 
+  prediction: {
+    prior: (age: string, min: number, max: number) =>
+      `Typisches Wachfenster in diesem Alter (${age}): ${min}–${max} Min.`,
+    observed: (name: string, median: number, n: number) =>
+      `In den letzten 7 Tagen lag ${name}s Wachfenster im Mittel bei ${median} Min (${n} beobachtet).`,
+    noObserved: (name: string) =>
+      `Noch zu wenig Einträge, um ${name}s eigenen Rhythmus zu erkennen – Nuggi nutzt den Altersrichtwert.`,
+    blend: (obsPct: number, result: number) =>
+      `Gewichtung: ${obsPct} % Beobachtung, ${100 - obsPct} % Altersrichtwert → ${result} Min Wachfenster.`,
+    factorFirst: "Erstes Wachfenster nach dem Aufwachen: etwas kürzer (×0,9).",
+    factorLast: "Letztes Wachfenster vor dem Schlafengehen: etwas länger (×1,1).",
+    napLength: (prior: number, result: number, n: number) =>
+      n > 0
+        ? `Nickerchen dauern bei diesem Alter etwa ${prior} Min, beobachtet ≈ ${result} Min (${n} Nickerchen).`
+        : `Nickerchen dauern bei diesem Alter etwa ${prior} Min.`,
+    anchorLastSleep: (time: string, next: string) =>
+      `Letzter Schlaf endete um ${time} → nächstes Nickerchen gegen ${next}.`,
+    anchorAssumedWake: (time: string, next: string) =>
+      `Kein Schlaf eingetragen – Nuggi nimmt ${time} als Aufwachzeit → nächstes Nickerchen gegen ${next}.`,
+    asleepNap: (since: string, wake: string) =>
+      `Schläft seit ${since}, wacht voraussichtlich gegen ${wake} auf.`,
+    asleepNight: (since: string, wake: string) =>
+      `Nachtschlaf seit ${since}, Morgen voraussichtlich gegen ${wake}.`,
+    bedtime: (time: string, target: string) => `Schlafenszeit gegen ${time} (Ziel ${target}).`,
+    bedtimeLater: (mins: number) => `Heute schon viel Tagschlaf (+${mins} Min) → Schlafenszeit 15 Min später.`,
+    bedtimeEarlier: (mins: number) => `Heute wenig Tagschlaf (−${mins} Min) → Schlafenszeit 15 Min früher.`,
+    noMoreNaps: "Für ein weiteres Nickerchen ist es zu spät – als Nächstes kommt die Schlafenszeit.",
+    confidence: (level: string, n: number) => `Sicherheit ${level} (${n} beobachtete Wachfenster).`,
+    feed: (interval: number, next: string) => `Mahlzeiten etwa alle ${interval} Min → nächste gegen ${next}.`,
+  },
+
   admin: {
     title: "Nuggi Admin",
     families: "Familien",
