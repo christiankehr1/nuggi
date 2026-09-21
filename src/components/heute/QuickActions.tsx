@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { logFeedAction, startBreastFeedAction, startSleepAction } from "@/actions/events";
 import { BottleIcon, BowlIcon, BreastIcon, MoonIcon, ScaleIcon } from "@/components/icons";
@@ -35,8 +36,13 @@ function readLastMl(): number {
   }
 }
 
+const DEEP_LINKS: Record<string, SheetKind> = { schlaf: "sleep", stillen: "breast", flaeschchen: "bottle", beikost: "solids", messung: "measurement" };
+
 export function QuickActions({ babyId, tz, settings, sleepRunning, feedRunning }: QuickActionsProps) {
   const toast = useToast();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [sheet, setSheet] = useState<SheetKind>(null);
   const [pending, startTransition] = useTransition();
   const [startedAt, setStartedAt] = useState(() => new Date().toISOString());
@@ -56,6 +62,19 @@ export function QuickActions({ babyId, tz, settings, sleepRunning, feedRunning }
     [settings.nightEnd, settings.nightStart, tz],
   );
   const close = useCallback(() => setSheet(null), []);
+
+  // /heute?aktion=schlaf|stillen|flaeschchen|beikost|messung opens the sheet directly (manifest shortcuts)
+  useEffect(() => {
+    const wanted = DEEP_LINKS[searchParams.get("aktion") ?? ""];
+    if (!wanted) return;
+    const blocked = (wanted === "sleep" && sleepRunning) || (wanted === "breast" && feedRunning);
+    // open on the next tick (like a tap) and drop the param so a reload doesn't re-open it
+    const id = setTimeout(() => {
+      if (!blocked) openSheet(wanted);
+      router.replace(pathname);
+    }, 0);
+    return () => clearTimeout(id);
+  }, [searchParams, openSheet, router, pathname, sleepRunning, feedRunning]);
 
   useEffect(() => {
     if (sheet === "bottle") {

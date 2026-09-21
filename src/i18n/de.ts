@@ -248,6 +248,10 @@ export const de = {
       "Damit Erinnerungen ankommen, muss Nuggi auf dem Home-Bildschirm installiert sein. Öffne die App dann von dort.",
     remindersNotConfigured: "Push ist auf dem Server noch nicht eingerichtet (VAPID-Schlüssel fehlen).",
     disableReminders: "Auf diesem Gerät deaktivieren",
+    swNotActive: "Der Hintergrunddienst der App ist nicht aktiv. Schliesse Nuggi ganz und öffne es erneut vom Home-Bildschirm.",
+    enablingStep1: "Hintergrunddienst wird vorbereitet …",
+    enablingStep2: "Gerät wird registriert …",
+    enableFailed: "Erinnerungen konnten nicht aktiviert werden.",
     remindersHint:
       "Erinnerungen kommen etwa 15 Minuten vor dem erwarteten Nickerchen, zur nächsten Mahlzeit und vor der Schlafenszeit – auf alle Geräte der Familie.",
     reminderNap: "Nickerchen",
@@ -275,6 +279,12 @@ export const de = {
       `${name} und alle zugehörigen Einträge wirklich löschen? Das kann nicht rückgängig gemacht werden.`,
     nameTaken: "Diesen Namen gibt es in eurer Familie schon.",
     minutes: "Minuten",
+  },
+
+  shortcuts: {
+    sleep: "Schlafen starten",
+    breast: "Stillen starten",
+    bottle: "Fläschchen eintragen",
   },
 
   install: {

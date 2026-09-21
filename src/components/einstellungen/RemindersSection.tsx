@@ -13,14 +13,54 @@ interface RemindersSectionProps {
   vapidPublicKey: string | null;
 }
 
+/** Reject after `ms` so a stuck service-worker promise can never freeze the UI. */
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const id = setTimeout(() => reject(new Error(`${label}: Zeitüberschreitung`)), ms);
+    promise.then(
+      (v) => {
+        clearTimeout(id);
+        resolve(v);
+      },
+      (e) => {
+        clearTimeout(id);
+        reject(e);
+      },
+    );
+  });
+}
+
 async function currentSubscription(): Promise<PushSubscription | null> {
-  const reg = await navigator.serviceWorker.getRegistration();
-  return (await reg?.pushManager.getSubscription()) ?? null;
+  const reg = await withTimeout(navigator.serviceWorker.getRegistration("/"), 4000, "Service Worker");
+  if (!reg) return null;
+  return (await withTimeout(reg.pushManager.getSubscription(), 4000, "Push")) ?? null;
+}
+
+/** Register (or re-use) the service worker and wait until it is active. */
+async function activeRegistration(): Promise<ServiceWorkerRegistration> {
+  const existing = await withTimeout(navigator.serviceWorker.getRegistration("/"), 4000, "Service Worker");
+  const reg = existing ?? (await withTimeout(navigator.serviceWorker.register("/sw.js", { scope: "/" }), 10000, "Service Worker"));
+  if (reg.active) return reg;
+  await withTimeout(
+    new Promise<void>((resolve) => {
+      const worker = reg.installing ?? reg.waiting;
+      if (!worker) return resolve();
+      worker.addEventListener("statechange", () => {
+        if (worker.state === "activated") resolve();
+        if (worker.state === "redundant") resolve();
+      });
+    }),
+    15000,
+    "Service Worker",
+  );
+  if (!reg.active) throw new Error(de.settings.swNotActive);
+  return reg;
 }
 
 export function RemindersSection({ vapidPublicKey }: RemindersSectionProps) {
   const toast = useToast();
   const [status, setStatus] = useState<Status>("loading");
+  const [detail, setDetail] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -28,13 +68,19 @@ export function RemindersSection({ vapidPublicKey }: RemindersSectionProps) {
     (async () => {
       let next: Status;
       if (!vapidPublicKey) next = "not-configured";
-      else if (!pushSupported()) next = isIOS() && !isStandalone() ? "not-standalone" : "unsupported";
       else if (isIOS() && !isStandalone()) next = "not-standalone";
+      else if (!pushSupported()) next = "unsupported";
       else if (Notification.permission === "denied") next = "denied";
       else {
-        const sub = await currentSubscription();
-        const res = await pushStatusAction({ endpoint: sub?.endpoint ?? null });
-        next = res.ok && res.data.subscribed ? "on" : "off";
+        let subscribed = false;
+        try {
+          const sub = await currentSubscription();
+          const res = await pushStatusAction({ endpoint: sub?.endpoint ?? null });
+          subscribed = res.ok && res.data.subscribed;
+        } catch {
+          subscribed = false;
+        }
+        next = subscribed ? "on" : "off";
       }
       if (!cancelled) setStatus(next);
     })().catch(() => {
@@ -45,51 +91,75 @@ export function RemindersSection({ vapidPublicKey }: RemindersSectionProps) {
     };
   }, [vapidPublicKey]);
 
-  const enable = () =>
+  const enable = () => {
+    // Ask for permission synchronously inside the tap – iOS requires a user gesture.
+    const permissionPromise = Notification.requestPermission();
     startTransition(async () => {
+      setDetail(null);
       try {
-        // must run inside the user gesture
-        const permission = await Notification.requestPermission();
+        const permission = await permissionPromise;
         if (permission !== "granted") {
           setStatus("denied");
           return;
         }
-        const reg = (await navigator.serviceWorker.getRegistration()) ?? (await navigator.serviceWorker.register("/sw.js", { scope: "/" }));
-        await navigator.serviceWorker.ready;
+        setDetail(de.settings.enablingStep1);
+        const reg = await activeRegistration();
+        setDetail(de.settings.enablingStep2);
         const sub =
-          (await reg.pushManager.getSubscription()) ??
-          (await reg.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(vapidPublicKey!),
-          }));
+          (await withTimeout(reg.pushManager.getSubscription(), 5000, "Push")) ??
+          (await withTimeout(
+            reg.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: urlBase64ToUint8Array(vapidPublicKey!),
+            }),
+            15000,
+            "Push",
+          ));
         const res = await subscribePushAction(sub.toJSON());
         if (res.ok) {
           setStatus("on");
+          setDetail(null);
           toast.show(de.settings.remindersEnabled);
         } else {
+          setDetail(res.error);
           toast.show(res.error, { tone: "error" });
         }
-      } catch {
-        toast.show(de.common.error, { tone: "error" });
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        setDetail(`${de.settings.enableFailed} (${msg})`);
+        toast.show(de.settings.enableFailed, { tone: "error" });
       }
     });
+  };
 
   const disable = () =>
     startTransition(async () => {
-      const sub = await currentSubscription();
-      if (sub) {
-        await unsubscribePushAction({ endpoint: sub.endpoint });
-        await sub.unsubscribe();
+      try {
+        const sub = await currentSubscription();
+        if (sub) {
+          await unsubscribePushAction({ endpoint: sub.endpoint });
+          await sub.unsubscribe();
+        }
+      } catch {
+        /* the server row is gone either way */
       }
       setStatus("off");
+      setDetail(null);
     });
 
   const test = () =>
     startTransition(async () => {
-      const sub = await currentSubscription();
-      if (!sub) return;
-      const res = await sendTestPushAction({ endpoint: sub.endpoint });
-      toast.show(res.ok ? de.settings.testPushSent : res.error, { tone: res.ok ? "default" : "error" });
+      try {
+        const sub = await currentSubscription();
+        if (!sub) {
+          setStatus("off");
+          return;
+        }
+        const res = await sendTestPushAction({ endpoint: sub.endpoint });
+        toast.show(res.ok ? de.settings.testPushSent : res.error, { tone: res.ok ? "default" : "error" });
+      } catch (err) {
+        toast.show(err instanceof Error ? err.message : de.common.error, { tone: "error" });
+      }
     });
 
   return (
@@ -108,7 +178,7 @@ export function RemindersSection({ vapidPublicKey }: RemindersSectionProps) {
           <p className="text-sm text-muted">{de.settings.remindersDisabled}</p>
           <button type="button" className="btn btn-primary w-full" onClick={enable} disabled={pending}>
             <BellIcon size={20} />
-            {de.settings.enableReminders}
+            {pending ? de.common.loading : de.settings.enableReminders}
           </button>
         </>
       ) : null}
@@ -125,6 +195,7 @@ export function RemindersSection({ vapidPublicKey }: RemindersSectionProps) {
           </div>
         </>
       ) : null}
+      {detail ? <p className="text-xs text-muted">{detail}</p> : null}
       <p className="text-xs text-muted">{de.settings.remindersHint}</p>
     </section>
   );

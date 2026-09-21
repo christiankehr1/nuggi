@@ -1,0 +1,7 @@
+# Never upload local build artefacts or secrets; the cloud build generates sw.js itself
+public/sw.js
+public/sw.js.map
+.local
+.env*
+.next
+node_modules

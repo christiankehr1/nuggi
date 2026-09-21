@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { BabySwitcher } from "@/components/heute/BabySwitcher";
 import { QuickActions } from "@/components/heute/QuickActions";
 import { Ring, type PredictionView } from "@/components/heute/Ring";
@@ -78,13 +79,15 @@ export default async function HeutePage() {
         <StatusRow awakeSince={awakeSince} lastFeed={lastFeed} />
       </div>
 
-      <QuickActions
-        babyId={baby.id}
-        tz={tz}
-        settings={baby.settings}
-        sleepRunning={!!runningSleep}
-        feedRunning={!!runningFeed}
-      />
+      <Suspense>
+        <QuickActions
+          babyId={baby.id}
+          tz={tz}
+          settings={baby.settings}
+          sleepRunning={!!runningSleep}
+          feedRunning={!!runningFeed}
+        />
+      </Suspense>
     </div>
   );
 }
