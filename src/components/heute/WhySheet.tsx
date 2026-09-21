@@ -7,7 +7,7 @@ export function WhySheet({ open, onClose, reasoning }: { open: boolean; onClose:
   return (
     <Sheet open={open} onClose={onClose} title={de.today.whyTitle}>
       <p className="mb-3 text-sm text-muted">{de.today.whyIntro}</p>
-      <ul className="flex max-h-[60dvh] flex-col gap-2 overflow-y-auto pb-1">
+      <ul className="flex flex-col gap-2 pb-1">
         {reasoning.map((line, i) => (
           <li key={i} className="flex gap-3 rounded-2xl bg-white/5 px-4 py-3 text-sm leading-snug">
             <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-lavender" aria-hidden />

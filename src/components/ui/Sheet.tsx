@@ -40,28 +40,36 @@ export function Sheet({ open, onClose, title, children }: SheetProps) {
   return (
     <dialog
       ref={ref}
-      className="fixed inset-0 m-0 h-dvh w-full max-w-none bg-transparent p-0 backdrop:bg-navy-900/70 backdrop:backdrop-blur-sm open:flex open:flex-col open:justify-end"
+      className="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none bg-transparent p-0 backdrop:bg-navy-900/70 backdrop:backdrop-blur-sm open:flex open:flex-col open:justify-end"
+      style={{ paddingTop: "calc(var(--safe-top) + 12px)" }}
       onClick={(e) => {
         if (e.target === ref.current) onClose();
       }}
     >
       <div
-        className="card mx-auto w-full max-w-md rounded-b-none border-b-0 px-5 pt-3 animate-fade-up"
-        style={{ paddingBottom: "calc(var(--safe-bottom) + 1.25rem)" }}
+        className="card mx-auto flex w-full max-w-md flex-col overflow-hidden rounded-b-none border-b-0 animate-fade-up"
+        style={{ maxHeight: "calc(100dvh - var(--safe-top) - 12px)" }}
       >
-        <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-white/20" />
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">{title}</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label={de.common.close}
-            className="btn btn-ghost -mr-2 h-11 min-h-11 w-11 px-0"
-          >
-            <CloseIcon size={22} />
-          </button>
+        <div className="sticky top-0 z-10 shrink-0 bg-navy-800/95 px-5 pt-3 backdrop-blur-xl">
+          <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-white/20" />
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-lg font-semibold">{title}</h2>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label={de.common.close}
+              className="btn btn-ghost -mr-2 h-11 min-h-11 w-11 px-0"
+            >
+              <CloseIcon size={22} />
+            </button>
+          </div>
         </div>
-        {open ? children : null}
+        <div
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pt-1"
+          style={{ paddingBottom: "calc(var(--safe-bottom) + 1.25rem)" }}
+        >
+          {open ? children : null}
+        </div>
       </div>
     </dialog>
   );

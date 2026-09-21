@@ -135,7 +135,7 @@ function EventForm({
   const canRun = kind === "sleep" || subtype === "breast" || existing?.endedAt === null;
 
   return (
-    <div className="flex max-h-[75dvh] flex-col gap-4 overflow-y-auto pb-1">
+    <div className="flex flex-col gap-4 pb-1">
       {!existing ? (
         <Segmented
           value={kind}
@@ -155,11 +155,11 @@ function EventForm({
         label={de.events.subtype}
       />
       <div className="grid grid-cols-2 gap-3">
-        <label className="flex flex-col gap-1.5">
+        <label className="flex min-w-0 flex-col gap-1.5">
           <span className="text-sm font-medium text-muted">{de.events.start}</span>
           <input type="datetime-local" className="input" value={start} onChange={(e) => setStart(e.target.value)} />
         </label>
-        <label className="flex flex-col gap-1.5">
+        <label className="flex min-w-0 flex-col gap-1.5">
           <span className="text-sm font-medium text-muted">{de.events.end}</span>
           <input
             type="datetime-local"

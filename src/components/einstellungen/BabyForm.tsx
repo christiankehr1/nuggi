@@ -92,12 +92,12 @@ function BabyFormBody({ onClose, existing }: { onClose: () => void; existing: Ba
     });
 
   return (
-    <div className="flex max-h-[75dvh] flex-col gap-4 overflow-y-auto pb-2">
-      <label className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-4 pb-1">
+      <label className="flex min-w-0 flex-col gap-1.5">
         <span className="text-sm font-medium text-muted">{de.settings.babyName}</span>
         <input className="input" value={name} onChange={(e) => setName(e.target.value)} maxLength={40} autoComplete="off" />
       </label>
-      <label className="flex flex-col gap-1.5">
+      <label className="flex min-w-0 flex-col gap-1.5">
         <span className="text-sm font-medium text-muted">{de.settings.birthDate}</span>
         <input type="date" className="input" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} />
       </label>
@@ -115,11 +115,11 @@ function BabyFormBody({ onClose, existing }: { onClose: () => void; existing: Ba
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <label className="flex flex-col gap-1.5">
+        <label className="flex min-w-0 flex-col gap-1.5">
           <span className="text-sm font-medium text-muted">{de.settings.bedtimeTarget}</span>
           <input type="time" className="input" value={settings.bedtimeTarget} onChange={(e) => patch({ bedtimeTarget: e.target.value })} />
         </label>
-        <label className="flex flex-col gap-1.5">
+        <label className="flex min-w-0 flex-col gap-1.5">
           <span className="text-sm font-medium text-muted">{de.settings.napLead}</span>
           <select className="input" value={settings.napLeadMinutes} onChange={(e) => patch({ napLeadMinutes: Number(e.target.value) })}>
             {[5, 10, 15, 20, 30, 45].map((m) => (
@@ -129,16 +129,16 @@ function BabyFormBody({ onClose, existing }: { onClose: () => void; existing: Ba
             ))}
           </select>
         </label>
-        <label className="flex flex-col gap-1.5">
+        <label className="flex min-w-0 flex-col gap-1.5">
           <span className="text-sm font-medium text-muted">{de.settings.nightStart}</span>
           <input type="time" className="input" value={settings.nightStart} onChange={(e) => patch({ nightStart: e.target.value })} />
         </label>
-        <label className="flex flex-col gap-1.5">
+        <label className="flex min-w-0 flex-col gap-1.5">
           <span className="text-sm font-medium text-muted">{de.settings.nightEnd}</span>
           <input type="time" className="input" value={settings.nightEnd} onChange={(e) => patch({ nightEnd: e.target.value })} />
         </label>
       </div>
-      <label className="flex flex-col gap-1.5">
+      <label className="flex min-w-0 flex-col gap-1.5">
         <span className="text-sm font-medium text-muted">{de.settings.feedInterval}</span>
         <select
           className="input"
