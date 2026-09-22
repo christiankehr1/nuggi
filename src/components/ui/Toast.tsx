@@ -53,7 +53,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           role="status"
           aria-live="polite"
           className="pointer-events-none fixed inset-x-0 z-50 flex justify-center px-4"
-          style={{ bottom: "calc(var(--tabbar-height) + var(--safe-bottom) + 12px)" }}
+          style={{ bottom: "calc(var(--tabbar-clearance) + 12px)" }}
         >
           <div
             className={`pointer-events-auto flex w-full max-w-md items-center gap-3 rounded-2xl px-4 py-3 shadow-xl backdrop-blur-xl animate-fade-up ${

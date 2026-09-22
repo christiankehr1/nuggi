@@ -29,7 +29,20 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
+  /* iOS 26+ draws a "Liquid Glass" blur over the translucent status bar of an
+     installed web app; it fades out roughly 40px below the bar. Page titles
+     start below that band: --status-bar-fade is 2.75rem whenever there is a
+     status-bar inset at all (min(inset × 100, 2.75rem)) and 0 in a browser
+     tab, where content never sits under the status bar. */
+  --status-bar-fade: min(calc(var(--safe-top) * 100), 2.75rem);
+  --top-inset: max(1rem, calc(var(--safe-top) + var(--status-bar-fade)));
+  /* Floating tab bar: a pill --tabbar-gap above the home-indicator inset.
+     --tabbar-clearance is the distance from the screen bottom to the pill's top
+     edge; --content-bottom pads pages so they scroll fully clear of it. */
   --tabbar-height: 64px;
+  --tabbar-gap: 12px;
+  --tabbar-clearance: calc(var(--tabbar-height) + var(--tabbar-gap) + var(--safe-bottom));
+  --content-bottom: calc(var(--tabbar-clearance) + 1.25rem);
 }
 
 @theme inline {
@@ -57,7 +70,10 @@
   --spacing-tap: var(--tap);
   --spacing-safe-top: var(--safe-top);
   --spacing-safe-bottom: var(--safe-bottom);
+  --spacing-top-inset: var(--top-inset);
   --spacing-tabbar: var(--tabbar-height);
+  --spacing-tabbar-clearance: var(--tabbar-clearance);
+  --spacing-content-bottom: var(--content-bottom);
 }
 
 @layer base {
@@ -276,11 +292,4 @@
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
-}
-
-/* Standalone (installed) mode: reserve the status bar area */
-@media (display-mode: standalone) {
-  body {
-    padding-top: 0;
-  }
 }

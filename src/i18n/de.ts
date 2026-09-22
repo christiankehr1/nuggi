@@ -91,6 +91,7 @@ export const de = {
     whyIntro: "So kommt Nuggi auf die Zeiten:",
     ringWake: "Aufgewacht",
     ringBedtime: "Schlafenszeit",
+    ringFeedAt: (detail: string, time: string) => `${detail} um ${time}`,
     noBaby: "Noch kein Baby angelegt",
     noBabyHint: "Leg in den Einstellungen dein Baby an – dann geht's hier los.",
     addBaby: "Baby anlegen",

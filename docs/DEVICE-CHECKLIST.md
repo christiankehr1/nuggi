@@ -10,6 +10,8 @@ Device: ______________  iOS: ______  Date: ______  Build: ______
 - [ ] Safari → Teilen → Zum Home-Bildschirm → Hinzufügen: icon shows the Nuggi artwork, name "Nuggi".
 - [ ] Opening from the home screen shows no Safari chrome (standalone), status bar is translucent navy.
 - [ ] Content respects the notch/Dynamic Island (header not hidden) and the home indicator (tab bar above it).
+- [ ] iOS 26+: the page title sits below the frosted status-bar band (not blurred); the tab bar floats as a pill above the home indicator.
+- [ ] Every page scrolls until its last row is fully visible above the floating tab bar (Heute: Beikost/Messung buttons).
 - [ ] Rotating to landscape and back does not break the layout.
 - [ ] Inputs do not zoom the page when focused (font ≥ 16 px).
 - [ ] Install banner appears in Safari (not installed) and not in the installed app; "Später" hides it for 7 days.
@@ -23,7 +25,8 @@ Device: ______________  iOS: ______  Date: ______  Build: ______
 
 ## Heute
 
-- [ ] Ring shows today's sleeps, the dotted predicted window, sun (wake-up) and moon (bedtime) markers.
+- [ ] Ring shows today's sleeps, the dotted predicted window, sun (wake-up) and moon (bedtime) markers – the moon is not cut off at the left edge.
+- [ ] Every feed of the day is a mint dot on the ring (drop = Stillen, bottle = Fläschchen, bowl = Beikost); a running Stillen pulses.
 - [ ] Centre line updates every 30 s; "Warum?" opens the reasoning sheet.
 - [ ] Schlafen starten → running timer ticks every second; after nightStart "Nacht" is pre-selected.
 - [ ] Beenden ends the timer with one tap, Verlauf shows the entry.

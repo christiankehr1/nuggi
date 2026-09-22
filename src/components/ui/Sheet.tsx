@@ -41,14 +41,14 @@ export function Sheet({ open, onClose, title, children }: SheetProps) {
     <dialog
       ref={ref}
       className="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none bg-transparent p-0 backdrop:bg-navy-900/70 backdrop:backdrop-blur-sm open:flex open:flex-col open:justify-end"
-      style={{ paddingTop: "calc(var(--safe-top) + 12px)" }}
+      style={{ paddingTop: "var(--top-inset)" }}
       onClick={(e) => {
         if (e.target === ref.current) onClose();
       }}
     >
       <div
         className="card mx-auto flex w-full max-w-md flex-col overflow-hidden rounded-b-none border-b-0 animate-fade-up"
-        style={{ maxHeight: "calc(100dvh - var(--safe-top) - 12px)" }}
+        style={{ maxHeight: "calc(100dvh - var(--top-inset))" }}
       >
         <div className="sticky top-0 z-10 shrink-0 bg-navy-800/95 px-5 pt-3 backdrop-blur-xl">
           <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-white/20" />

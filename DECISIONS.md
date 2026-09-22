@@ -135,3 +135,26 @@ Choices made while building Nuggi that are not obvious from the code.
   manifest/service-worker audits in "Best Practices" and on a real device
   (`docs/DEVICE-CHECKLIST.md`); performance, accessibility and best-practices
   scores are reported in the README.
+
+## Phase 7 – iPhone 16 Pro polish
+
+- **Page titles start below the status-bar glass.** iOS 26+ blurs the content
+  under a `black-translucent` status bar in an installed web app, and the
+  blur fades out ~40px below the bar – the Heute header sat right in that band
+  and looked smeared. `--top-inset` = `safe-top + 2.75rem` whenever there is a
+  status-bar inset (the `min(inset × 100, 2.75rem)` trick yields 0 without an
+  inset), so a browser tab keeps its 1rem. Switching the status bar to `black`
+  would avoid the blur too, but costs the translucent navy look.
+- **The ring's viewBox includes the outside markers.** Sun/moon markers sit at
+  `R + STROKE + 8` with radius 12, which exceeded the old 320px viewBox at 6 h
+  and 18 h; the bedtime moon was cut in half. `SIZE` is derived from the marker
+  geometry now.
+- **Feeds are drawn on the ring, not next to it.** A mint disc with the
+  breast/bottle/bowl icon at the feed's start minute, layered between the
+  sleep arcs and the "now" dot. Inside the ring they would collide with the
+  centre copy, outside with the hour labels and the sun/moon markers.
+- **Floating tab bar.** The bar is a frosted pill `--tabbar-gap` above the
+  home-indicator inset; its wrapper is `pointer-events: none` so the page keeps
+  scrolling under it. Everything that floats above the bar (toast, install
+  banner, the Verlauf "+") is positioned from `--tabbar-clearance`, and pages
+  pad with `--content-bottom` so the last row scrolls fully clear of the pill.
