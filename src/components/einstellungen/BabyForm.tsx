@@ -159,6 +159,20 @@ function BabyFormBody({ onClose, existing }: { onClose: () => void; existing: Ba
         <Toggle label={de.settings.reminderNap} checked={settings.reminders.nap} onChange={(v) => patch({ reminders: { ...settings.reminders, nap: v } })} />
         <Toggle label={de.settings.reminderFeed} checked={settings.reminders.feed} onChange={(v) => patch({ reminders: { ...settings.reminders, feed: v } })} />
         <Toggle label={de.settings.reminderBedtime} checked={settings.reminders.bedtime} onChange={(v) => patch({ reminders: { ...settings.reminders, bedtime: v } })} />
+        <Toggle label={de.settings.reminderBreast} checked={settings.reminders.breast} onChange={(v) => patch({ reminders: { ...settings.reminders, breast: v } })} />
+        {settings.reminders.breast ? (
+          <label className="flex min-h-12 items-center justify-between gap-3">
+            <span>{de.settings.breastCue}</span>
+            <select className="input w-auto" value={settings.breastCueMinutes} onChange={(e) => patch({ breastCueMinutes: Number(e.target.value) })}>
+              {[5, 10, 15, 20, 25, 30, 45].map((m) => (
+                <option key={m} value={m}>
+                  {m} {de.settings.minutes}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
+        <p className="pb-1 text-xs text-muted">{de.settings.breastCueHint}</p>
       </div>
 
       <div className="flex gap-3">

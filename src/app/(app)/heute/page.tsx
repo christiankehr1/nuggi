@@ -61,9 +61,10 @@ export default async function HeutePage() {
   const todaySleeps = events.filter(
     (e) => e.kind === "sleep" && new Date(e.startedAt) >= yesterdayStart,
   );
+  const todayFeeds = events.filter((e) => e.kind === "feed" && localDayKey(e.startedAt, tz) === todayKey);
 
   return (
-    <div className="flex min-h-[calc(100dvh-var(--tabbar-height)-var(--safe-bottom)-2rem)] flex-col gap-4 animate-fade-up">
+    <div className="flex min-h-[calc(100dvh-var(--top-inset)-var(--content-bottom))] flex-col gap-4 animate-fade-up">
       <header className="flex flex-col gap-3">
         <h1 className="text-2xl font-bold">
           {baby.name} <span className="font-normal text-muted">· {ageLabel(baby.birthDate, now, tz)}</span>
@@ -72,9 +73,11 @@ export default async function HeutePage() {
       </header>
 
       <div className="flex flex-1 flex-col justify-center gap-4">
-        <Ring sleeps={todaySleeps} prediction={prediction} tz={tz} todayKey={todayKey} />
+        <Ring sleeps={todaySleeps} feeds={todayFeeds} prediction={prediction} tz={tz} todayKey={todayKey} />
         {runningSleep ? <RunningTimer event={runningSleep} tz={tz} /> : null}
-        {runningFeed ? <RunningTimer event={runningFeed} tz={tz} /> : null}
+        {runningFeed ? (
+          <RunningTimer event={runningFeed} tz={tz} cueMinutes={baby.settings.reminders.breast ? baby.settings.breastCueMinutes : null} />
+        ) : null}
         {events.length === 0 ? <div className="card p-4 text-center text-sm text-muted">{de.today.empty}</div> : null}
         <StatusRow awakeSince={awakeSince} lastFeed={lastFeed} />
       </div>

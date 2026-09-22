@@ -71,9 +71,10 @@ describe("migrations", () => {
     );
     expect(res.rows[0]!.settings).toMatchObject({
       napLeadMinutes: 15,
+      breastCueMinutes: 15,
       feedIntervalMinutes: null,
       bedtimeTarget: "19:00",
-      reminders: { nap: true, feed: true, bedtime: true },
+      reminders: { nap: true, feed: true, bedtime: true, breast: true },
     });
   });
 

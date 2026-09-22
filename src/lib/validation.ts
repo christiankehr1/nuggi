@@ -25,10 +25,12 @@ export const note = z.string().trim().max(500);
 export const babySettingsSchema = z.object({
   napLeadMinutes: z.number().int().min(0).max(120),
   feedIntervalMinutes: z.number().int().min(30).max(720).nullable(),
+  breastCueMinutes: z.number().int().min(5).max(60),
   bedtimeTarget: hm,
   nightStart: hm,
   nightEnd: hm,
-  reminders: z.object({ nap: z.boolean(), feed: z.boolean(), bedtime: z.boolean() }),
+  // `breast` defaults so a client still running the previous build can save settings
+  reminders: z.object({ nap: z.boolean(), feed: z.boolean(), bedtime: z.boolean(), breast: z.boolean().default(true) }),
 });
 
 /** Plausibility ranges per measurement kind. */

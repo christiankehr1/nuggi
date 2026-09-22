@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { ageInWeeks } from "@/lib/age";
 import { cronClaimReminder, cronListBabies, cronListEvents, cronPruneReminders } from "@/lib/db/cron";
 import { env, pushConfigured } from "@/lib/env";
+import { runningOf } from "@/lib/events-utils";
 import { dueReminders } from "@/lib/push/reminders";
 import { sendToFamily } from "@/lib/push/send";
 import { predict } from "@/lib/sleep/predict";
@@ -12,9 +13,10 @@ export const maxDuration = 60;
 
 /**
  * POST /api/cron/reminders  (Authorization: Bearer CRON_SECRET)
- * Runs every 5 minutes (cron-job.org / pg_cron). For every baby with reminders
- * enabled: predict, find reminders due in [now − 5, now + 5] min, claim the
- * dedupe key, send to all of the family's devices.
+ * Runs every 1–5 minutes (cron-job.org / GitHub Actions / pg_cron). For every
+ * baby with reminders enabled: predict, find reminders due in [now − 5, now + 5]
+ * min plus the breast cue of a running feed, claim the dedupe key, send to all
+ * of the family's devices.
  */
 function authorized(request: Request): boolean {
   const header = request.headers.get("authorization") ?? "";
@@ -35,7 +37,7 @@ async function run(request: Request): Promise<Response> {
   const babies = await cronListBabies();
   for (const { baby, timezone } of babies) {
     const r = baby.settings.reminders;
-    if (!r.nap && !r.feed && !r.bedtime) continue;
+    if (!r.nap && !r.feed && !r.bedtime && !r.breast) continue;
     stats.babies += 1;
     const since = addLocalDays(startOfLocalDay(now, timezone), -14, timezone);
     const events = await cronListEvents(baby.familyId, baby.id, since);
@@ -48,6 +50,7 @@ async function run(request: Request): Promise<Response> {
       prediction,
       now,
       tz: timezone,
+      runningFeed: runningOf(events, "feed"),
     });
     for (const d of due) {
       const claimed = await cronClaimReminder({ familyId: baby.familyId, babyId: baby.id, kind: d.kind, dedupeKey: d.dedupeKey });

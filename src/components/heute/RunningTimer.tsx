@@ -23,8 +23,15 @@ export function elapsedClock(from: string, now: Date): string {
   return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
 }
 
+interface RunningTimerProps {
+  event: BabyEvent;
+  tz: string;
+  /** breast feeds: minutes after which the card turns amber and suggests switching sides */
+  cueMinutes?: number | null;
+}
+
 /** Live timer card for a running sleep or feed with a single "Beenden" button. */
-export function RunningTimer({ event, tz }: { event: BabyEvent; tz: string }) {
+export function RunningTimer({ event, tz, cueMinutes = null }: RunningTimerProps) {
   const now = useNow(1000);
   const toast = useToast();
   const [pending, startTransition] = useTransition();
@@ -32,8 +39,10 @@ export function RunningTimer({ event, tz }: { event: BabyEvent; tz: string }) {
   if (ended) return null;
 
   const isSleep = event.kind === "sleep";
-  const tone = isSleep ? "text-lavender" : "text-mint";
-  const bg = isSleep ? "bg-lavender-soft" : "bg-mint-soft";
+  const elapsedMinutes = (now.getTime() - new Date(event.startedAt).getTime()) / 60_000;
+  const cued = !isSleep && event.subtype === "breast" && cueMinutes !== null && elapsedMinutes >= cueMinutes;
+  const tone = isSleep ? "text-lavender" : cued ? "text-sun" : "text-mint";
+  const bg = isSleep ? "bg-lavender-soft" : cued ? "bg-sun-soft" : "bg-mint-soft";
 
   const end = () =>
     startTransition(async () => {
@@ -62,6 +71,7 @@ export function RunningTimer({ event, tz }: { event: BabyEvent; tz: string }) {
         <p className={`num text-3xl font-bold ${tone}`} aria-live="off">
           {elapsedClock(event.startedAt, now)}
         </p>
+        {cued && cueMinutes !== null ? <p className="text-xs font-semibold text-sun">{de.actions.breastCue(cueMinutes)}</p> : null}
       </div>
       <button type="button" onClick={end} disabled={pending} className={`btn ${isSleep ? "btn-primary" : "btn-mint"} px-5`}>
         {de.actions.finish}

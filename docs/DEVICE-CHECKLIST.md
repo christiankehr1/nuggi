@@ -10,6 +10,8 @@ Device: ______________  iOS: ______  Date: ______  Build: ______
 - [ ] Safari → Teilen → Zum Home-Bildschirm → Hinzufügen: icon shows the Nuggi artwork, name "Nuggi".
 - [ ] Opening from the home screen shows no Safari chrome (standalone), status bar is translucent navy.
 - [ ] Content respects the notch/Dynamic Island (header not hidden) and the home indicator (tab bar above it).
+- [ ] iOS 26+: the page title sits below the frosted status-bar band (not blurred); the tab bar floats as a pill above the home indicator.
+- [ ] Every page scrolls until its last row is fully visible above the floating tab bar (Heute: Beikost/Messung buttons).
 - [ ] Rotating to landscape and back does not break the layout.
 - [ ] Inputs do not zoom the page when focused (font ≥ 16 px).
 - [ ] Install banner appears in Safari (not installed) and not in the installed app; "Später" hides it for 7 days.
@@ -23,7 +25,8 @@ Device: ______________  iOS: ______  Date: ______  Build: ______
 
 ## Heute
 
-- [ ] Ring shows today's sleeps, the dotted predicted window, sun (wake-up) and moon (bedtime) markers.
+- [ ] Ring shows today's sleeps, the dotted predicted window, sun (wake-up) and moon (bedtime) markers – the moon is not cut off at the left edge.
+- [ ] Every feed of the day is a mint dot on the ring (drop = Stillen, bottle = Fläschchen, bowl = Beikost); a running Stillen pulses.
 - [ ] Centre line updates every 30 s; "Warum?" opens the reasoning sheet.
 - [ ] Schlafen starten → running timer ticks every second; after nightStart "Nacht" is pre-selected.
 - [ ] Beenden ends the timer with one tap, Verlauf shows the entry.
@@ -59,6 +62,7 @@ Device: ______________  iOS: ______  Date: ______  Build: ______
 - [ ] Nap reminder arrives ~napLeadMinutes before the predicted nap (check cron-job.org history: `due` > 0).
 - [ ] Feed reminder is muted at night for a baby ≥ 12 weeks.
 - [ ] Bedtime reminder arrives before the predicted bedtime.
+- [ ] Stillen starten, Handy sperren: „Stillen läuft seit 15 Min“ arrives on the lock screen once (≈ breastCueMinutes + cron interval); in Heute the timer card turns amber with „15 Min – Seite wechseln?“.
 - [ ] Turning a kind off in the baby settings stops that reminder; "Auf diesem Gerät deaktivieren" stops all on this phone.
 - [ ] Second phone of the same family receives the same reminders.
 
