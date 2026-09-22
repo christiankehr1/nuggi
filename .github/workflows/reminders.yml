@@ -1,8 +1,9 @@
 name: Nuggi reminders
 
-# Calls the reminder scheduler every 5 minutes. GitHub may delay scheduled runs
-# by a few minutes under load; the endpoint's ±5 min window and dedupe keys
-# tolerate that. cron-job.org can run in parallel without double sends.
+# Calls the reminder scheduler every 5 minutes (GitHub's minimum). GitHub may
+# delay scheduled runs by a few minutes under load; the endpoint's ±5 min window
+# and dedupe keys tolerate that, the breast cue arrives up to one interval late.
+# cron-job.org can run in parallel (even every minute) without double sends.
 on:
   schedule:
     - cron: "*/5 * * * *"

@@ -62,6 +62,7 @@ Device: ______________  iOS: ______  Date: ______  Build: ______
 - [ ] Nap reminder arrives ~napLeadMinutes before the predicted nap (check cron-job.org history: `due` > 0).
 - [ ] Feed reminder is muted at night for a baby ≥ 12 weeks.
 - [ ] Bedtime reminder arrives before the predicted bedtime.
+- [ ] Stillen starten, Handy sperren: „Stillen läuft seit 15 Min“ arrives on the lock screen once (≈ breastCueMinutes + cron interval); in Heute the timer card turns amber with „15 Min – Seite wechseln?“.
 - [ ] Turning a kind off in the baby settings stops that reminder; "Auf diesem Gerät deaktivieren" stops all on this phone.
 - [ ] Second phone of the same family receives the same reminders.
 

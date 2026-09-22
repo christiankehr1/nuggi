@@ -158,3 +158,14 @@ Choices made while building Nuggi that are not obvious from the code.
   scrolling under it. Everything that floats above the bar (toast, install
   banner, the Verlauf "+") is positioned from `--tabbar-clearance`, and pages
   pad with `--content-bottom` so the last row scrolls fully clear of the pill.
+- **The Stillen-Hinweis is scheduler-driven, not a lock-screen timer.** iOS gives
+  live lock-screen timers (Live Activities) to native apps only; a web app can
+  only put notifications there. So a running breast feed sends one push once it
+  has lasted `breastCueMinutes` (per baby, default 15), keyed by the event id so
+  overlapping cron runs cannot double-send, and never once it is an hour past the
+  cue (a forgotten timer). Its precision is the cron interval: GitHub Actions
+  cannot go below 5 minutes, cron-job.org can run every minute. A "Now Playing"
+  card via silent audio and the Media Session API would tick on the lock screen,
+  but it hijacks the audio session and its background behaviour on iOS is
+  unverified, so it was left out. While the app is open, the running-feed card
+  turns amber at the same minute.

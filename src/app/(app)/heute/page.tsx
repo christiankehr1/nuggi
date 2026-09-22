@@ -75,7 +75,9 @@ export default async function HeutePage() {
       <div className="flex flex-1 flex-col justify-center gap-4">
         <Ring sleeps={todaySleeps} feeds={todayFeeds} prediction={prediction} tz={tz} todayKey={todayKey} />
         {runningSleep ? <RunningTimer event={runningSleep} tz={tz} /> : null}
-        {runningFeed ? <RunningTimer event={runningFeed} tz={tz} /> : null}
+        {runningFeed ? (
+          <RunningTimer event={runningFeed} tz={tz} cueMinutes={baby.settings.reminders.breast ? baby.settings.breastCueMinutes : null} />
+        ) : null}
         {events.length === 0 ? <div className="card p-4 text-center text-sm text-muted">{de.today.empty}</div> : null}
         <StatusRow awakeSince={awakeSince} lastFeed={lastFeed} />
       </div>

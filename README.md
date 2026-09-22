@@ -18,7 +18,7 @@ home-screen web app (iOS 16.4+) – no App Store, no TestFlight.
 ### 1.1 Supabase project (Zurich)
 
 1. Create a project at <https://supabase.com/dashboard> → **Region: Zurich (eu-central-2)**.
-2. Apply the schema. Either paste `supabase/migrations/0001_init.sql` into
+2. Apply the schema. Either paste each file in `supabase/migrations/` (in order) into
    **SQL Editor → New query → Run**, or with the direct connection string:
 
    ```bash
@@ -84,7 +84,13 @@ Both parents (and grandparents) enter the same code on their own phones.
 prediction for every baby, sends due reminders (nap lead time, next feed, bedtime)
 to all of the family's devices and records them in `reminders_sent` so nothing is
 sent twice. Feed reminders are muted between `nightStart` and `nightEnd` for babies
-older than 12 weeks. Dead subscriptions (3× 404/410) are deleted.
+older than 12 weeks. A running breast feed sends „Stillen läuft seit 15 Min“ once it
+has lasted `breastCueMinutes` (per baby, default 15) – exactly once per feed. Dead
+subscriptions (3× 404/410) are deleted.
+
+The breast cue is sent by the first run after the threshold, so its lag is the
+scheduler's interval: run the endpoint every minute if it should be punctual
+(cron-job.org allows that; GitHub Actions' minimum is 5 minutes).
 
 Vercel Hobby crons run at most once per day, so trigger the endpoint externally:
 
@@ -92,7 +98,7 @@ Vercel Hobby crons run at most once per day, so trigger the endpoint externally:
 
 1. Create an account at <https://cron-job.org>, **Create cronjob**.
 2. URL: `https://<your-app>/api/cron/reminders`
-3. Schedule: *Every 5 minutes*.
+3. Schedule: *Every 1 minute* (every 5 minutes is enough if the breast cue may lag).
 4. Advanced → **Request method:** `POST`; **Headers:** add
    `Authorization` = `Bearer <CRON_SECRET>`.
 5. Save and check the execution history: a successful run returns

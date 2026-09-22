@@ -123,6 +123,7 @@ export const de = {
     sleepTypeQuestion: "Nickerchen oder Nacht?",
     whatWasEaten: "Was gab es?",
     solidsPlaceholder: "z. B. Karottenbrei",
+    breastCue: (minutes: number) => `${minutes} Min – Seite wechseln?`,
   },
 
   events: {
@@ -254,10 +255,14 @@ export const de = {
     enablingStep2: "Gerät wird registriert …",
     enableFailed: "Erinnerungen konnten nicht aktiviert werden.",
     remindersHint:
-      "Erinnerungen kommen etwa 15 Minuten vor dem erwarteten Nickerchen, zur nächsten Mahlzeit und vor der Schlafenszeit – auf alle Geräte der Familie.",
+      "Erinnerungen kommen etwa 15 Minuten vor dem erwarteten Nickerchen, zur nächsten Mahlzeit, vor der Schlafenszeit und sobald das Stillen die eingestellte Zeit läuft – auf alle Geräte der Familie.",
     reminderNap: "Nickerchen",
     reminderFeed: "Mahlzeiten",
     reminderBedtime: "Schlafenszeit",
+    reminderBreast: "Stillen-Hinweis",
+    breastCue: "Hinweis nach",
+    breastCueHint:
+      "Der Stillen-Hinweis kommt als Mitteilung auf den Sperrbildschirm, sobald das Stillen so lange läuft – auch bei gesperrtem Handy. Je nach Takt des Erinnerungsdiensts ein paar Minuten später.",
     testPush: "Test-Mitteilung senden",
     testPushSent: "Gesendet – schau auf dein Gerät.",
     myName: "Mein Name",
@@ -314,6 +319,11 @@ export const de = {
     bedtimeTitle: "Gleich ist Schlafenszeit 🌙",
     bedtimeBody: (name: string, time: string) =>
       `Für ${name} passt gegen ${time} das Bett. Licht dimmen, Ritual starten.`,
+    breastTitle: (minutes: number) => `Stillen läuft seit ${minutes} Min 🤱`,
+    breastBody: (name: string, minutes: number, side: string | null) =>
+      side
+        ? `${name} trinkt seit ${minutes} Min ${side}. Seite wechseln oder beenden?`
+        : `${name} trinkt seit ${minutes} Min. Seite wechseln oder beenden?`,
     testTitle: "Nuggi ist bereit 🎉",
     testBody: "So sehen Erinnerungen aus. Schlaf gut!",
   },

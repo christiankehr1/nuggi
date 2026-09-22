@@ -16,12 +16,16 @@ export interface ReminderToggles {
   nap: boolean;
   feed: boolean;
   bedtime: boolean;
+  /** "Stillen läuft seit X Min" once a running breast feed reaches breastCueMinutes */
+  breast: boolean;
 }
 
 export interface BabySettings {
   napLeadMinutes: number;
   /** null = age default */
   feedIntervalMinutes: number | null;
+  /** minutes into a breast feed after which the cue is sent (see reminders.breast) */
+  breastCueMinutes: number;
   /** "HH:mm" local time */
   bedtimeTarget: string;
   nightStart: string;
@@ -32,10 +36,11 @@ export interface BabySettings {
 export const DEFAULT_BABY_SETTINGS: BabySettings = {
   napLeadMinutes: 15,
   feedIntervalMinutes: null,
+  breastCueMinutes: 15,
   bedtimeTarget: "19:00",
   nightStart: "19:00",
   nightEnd: "07:00",
-  reminders: { nap: true, feed: true, bedtime: true },
+  reminders: { nap: true, feed: true, bedtime: true, breast: true },
 };
 
 export interface Family {
@@ -108,4 +113,4 @@ export interface PushSubscriptionRow {
   failures: number;
 }
 
-export type ReminderKind = "nap" | "feed" | "bedtime";
+export type ReminderKind = "nap" | "feed" | "bedtime" | "breast";
