@@ -9,6 +9,9 @@ import { useToast } from "@/components/ui/Toast";
 import { de } from "@/i18n/de";
 import { DEFAULT_BABY_SETTINGS, type Baby, type BabySettings } from "@/lib/types";
 
+/** Every whole minute the server accepts (validation.ts: 5–60), since feeds differ by a minute or two. */
+const BREAST_CUE_OPTIONS = Array.from({ length: 56 }, (_, i) => i + 5);
+
 interface BabyFormProps {
   open: boolean;
   onClose: () => void;
@@ -164,7 +167,7 @@ function BabyFormBody({ onClose, existing }: { onClose: () => void; existing: Ba
           <label className="flex min-h-12 items-center justify-between gap-3">
             <span>{de.settings.breastCue}</span>
             <select className="input w-auto" value={settings.breastCueMinutes} onChange={(e) => patch({ breastCueMinutes: Number(e.target.value) })}>
-              {[5, 10, 15, 20, 25, 30, 45].map((m) => (
+              {BREAST_CUE_OPTIONS.map((m) => (
                 <option key={m} value={m}>
                   {m} {de.settings.minutes}
                 </option>
