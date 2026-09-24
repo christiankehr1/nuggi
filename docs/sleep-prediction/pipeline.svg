@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-16 -16 892 362" width="892" height="362" role="img" aria-label="Pipeline: age prior and observed history are blended into a wake window, which is added to an anchor time to give the next nap; a separate path computes bedtime."><style>
+svg{--panel:#ffffff;--panel-2:#ecebfb;--line:rgba(27,30,75,.14);--text:#15173d;--muted:#5a5c8f;--lavender:#5b5ce0;--lav-soft:rgba(91,92,224,.14);--sun:#b07a10;--sun-soft:rgba(214,158,40,.18);--coral:#c2553b;--coral-soft:rgba(194,85,59,.14);--mint:#1f8a6e;--mint-soft:rgba(31,138,110,.14)}
+@media (prefers-color-scheme: dark){svg{--panel:#13163a;--panel-2:#1b1e4b;--line:rgba(255,255,255,.12);--text:#f4f4fa;--muted:#a9a9d6;--lavender:#8b8cf6;--lav-soft:rgba(139,140,246,.2);--sun:#f5c86b;--sun-soft:rgba(245,200,107,.2);--coral:#e8846b;--coral-soft:rgba(232,132,107,.2);--mint:#9be3cf;--mint-soft:rgba(155,227,207,.2)}}
+text{font-family:ui-monospace,"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;fill:var(--muted);font-size:12px}
+.t-strong{fill:var(--text);font-weight:600}
+.t-disp{font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;fill:var(--text);font-size:15px;font-weight:700}
+</style><rect x="-16" y="-16" width="892" height="362" rx="16" style="fill:var(--panel)"/>
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--muted)"></path></marker>
+      </defs>
+      <g style="stroke:var(--muted);stroke-width:1.5;fill:none" marker-end="url(#ar)">
+        <path d="M170 60 H232"></path><path d="M170 160 H200 Q215 160 215 140 V95 Q215 80 232 80"></path>
+        <path d="M400 70 H452"></path><path d="M620 70 H652"></path>
+        <path d="M735 105 V142"></path>
+        <path d="M170 260 H652"></path>
+        <path d="M735 200 V222"></path>
+      </g>
+      <g style="stroke-width:1.5">
+        <rect x="10" y="30" width="160" height="62" rx="14" style="fill:var(--lav-soft);stroke:var(--lavender)"></rect>
+        <rect x="10" y="130" width="160" height="62" rx="14" style="fill:var(--mint-soft);stroke:var(--mint)"></rect>
+        <rect x="10" y="230" width="160" height="62" rx="14" style="fill:var(--panel-2);stroke:var(--line)"></rect>
+        <rect x="235" y="35" width="165" height="70" rx="14" style="fill:var(--panel-2);stroke:var(--line)"></rect>
+        <rect x="455" y="35" width="165" height="70" rx="14" style="fill:var(--panel-2);stroke:var(--line)"></rect>
+        <rect x="655" y="35" width="160" height="70" rx="14" style="fill:var(--panel-2);stroke:var(--line)"></rect>
+        <rect x="655" y="145" width="160" height="55" rx="14" style="fill:var(--sun-soft);stroke:var(--sun)"></rect>
+        <rect x="655" y="225" width="160" height="70" rx="14" style="fill:var(--coral-soft);stroke:var(--coral)"></rect>
+      </g>
+      <text x="24" y="56" class="t-disp">Age prior</text><text x="24" y="78">wake window, naps</text>
+      <text x="24" y="156" class="t-disp">Last 7 days</text><text x="24" y="178">trimmed medians</text>
+      <text x="24" y="256" class="t-disp">Today so far</text><text x="24" y="278">anchor, nap minutes</text>
+      <text x="249" y="62" class="t-disp">① Blend</text><text x="249" y="86">weight grows with n</text>
+      <text x="469" y="62" class="t-disp">② Position</text><text x="469" y="86">×0.9 · ×1.0 · ×1.1</text>
+      <text x="669" y="62" class="t-disp">③ Clamp</text><text x="669" y="86">0.8·min … 1.2·max</text>
+      <text x="669" y="170" class="t-disp">anchor + window</text><text x="669" y="190">= next nap ±15 min</text>
+      <text x="669" y="252" class="t-disp">Bedtime</text><text x="669" y="274">target −60 … +45</text>
+      <text x="330" y="252">last window, daytime sleep, target</text>
+      <text x="745" y="128">then</text>
+      <text x="727" y="216" text-anchor="end" style="font-size:11px">nap too close to bed → bedtime</text>
+    </svg>

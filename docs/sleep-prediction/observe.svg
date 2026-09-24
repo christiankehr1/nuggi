@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-16 -16 892 202" width="892" height="202" role="img" aria-label="A timeline of one day with sleeps as bars and the gaps between them measured as wake windows."><style>
+svg{--panel:#ffffff;--panel-2:#ecebfb;--line:rgba(27,30,75,.14);--text:#15173d;--muted:#5a5c8f;--lavender:#5b5ce0;--lav-soft:rgba(91,92,224,.14);--sun:#b07a10;--sun-soft:rgba(214,158,40,.18);--coral:#c2553b;--coral-soft:rgba(194,85,59,.14);--mint:#1f8a6e;--mint-soft:rgba(31,138,110,.14)}
+@media (prefers-color-scheme: dark){svg{--panel:#13163a;--panel-2:#1b1e4b;--line:rgba(255,255,255,.12);--text:#f4f4fa;--muted:#a9a9d6;--lavender:#8b8cf6;--lav-soft:rgba(139,140,246,.2);--sun:#f5c86b;--sun-soft:rgba(245,200,107,.2);--coral:#e8846b;--coral-soft:rgba(232,132,107,.2);--mint:#9be3cf;--mint-soft:rgba(155,227,207,.2)}}
+text{font-family:ui-monospace,"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;fill:var(--muted);font-size:12px}
+.t-strong{fill:var(--text);font-weight:600}
+.t-disp{font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;fill:var(--text);font-size:15px;font-weight:700}
+</style><rect x="-16" y="-16" width="892" height="202" rx="16" style="fill:var(--panel)"/>
+      <line x1="30" y1="80" x2="830" y2="80" style="stroke:var(--line);stroke-width:2"></line>
+      <!-- 05:00 .. 21:00 → x = 30 + (h-5)*50 -->
+      <rect x="30" y="64" width="100" height="32" rx="8" style="fill:var(--lav-soft);stroke:var(--lavender)"></rect>
+      <text x="44" y="85" class="t-strong">night</text>
+      <rect x="213" y="64" width="38" height="32" rx="8" style="fill:var(--mint-soft);stroke:var(--mint)"></rect>
+      <rect x="333" y="64" width="42" height="32" rx="8" style="fill:var(--mint-soft);stroke:var(--mint)"></rect>
+      <rect x="458" y="64" width="42" height="32" rx="8" style="fill:var(--mint-soft);stroke:var(--mint)"></rect>
+      <rect x="594" y="64" width="25" height="32" rx="8" style="fill:var(--mint-soft);stroke:var(--mint)"></rect>
+      <rect x="730" y="64" width="100" height="32" rx="8" style="fill:var(--lav-soft);stroke:var(--lavender)"></rect>
+      <text x="744" y="85" class="t-strong">night</text>
+      <g style="stroke:var(--sun);stroke-width:1.5;fill:none">
+        <path d="M130 50 V40 H213 V50"></path><path d="M251 50 V40 H333 V50"></path><path d="M375 50 V40 H458 V50"></path><path d="M500 50 V40 H594 V50"></path><path d="M619 50 V40 H730 V50"></path>
+      </g>
+      <text x="150" y="30" style="fill:var(--sun)">100′</text><text x="272" y="30" style="fill:var(--sun)">98′</text><text x="396" y="30" style="fill:var(--sun)">100′</text><text x="528" y="30" style="fill:var(--sun)">112′</text><text x="656" y="30" style="fill:var(--sun)">133′</text>
+      <text x="222" y="118" style="fill:var(--mint)">45′</text><text x="342" y="118" style="fill:var(--mint)">50′</text><text x="468" y="118" style="fill:var(--mint)">50′</text><text x="592" y="118" style="fill:var(--mint)">30′</text>
+      <g><text x="20" y="150">05</text><text x="170" y="150">08</text><text x="320" y="150">11</text><text x="470" y="150">14</text><text x="620" y="150">17</text><text x="770" y="150">20</text></g>
+    </svg>
