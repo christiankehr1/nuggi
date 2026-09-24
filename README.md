@@ -127,7 +127,119 @@ Remove with `select cron.unschedule('nuggi-reminders');`.
 
 ---
 
-## 4. Local development without a Supabase project
+## 4. How the sleep prediction works
+
+`predict()` in [`src/lib/sleep/predict.ts`](src/lib/sleep/predict.ts) is a pure function:
+no machine learning, no network, no `Date.now()` – the same events and `now` always give
+the same answer. It starts from what is typical for the baby's age, trusts the baby's own
+logged rhythm more as data accumulates, and counts forward from the last time the baby
+woke up. Every step appends a German sentence to `reasoning`, which the *Warum?* panel on
+the Heute screen shows as-is.
+
+![Pipeline: age prior and last-7-days observations are blended into a wake window, which is added to an anchor time to give the next nap; bedtime is computed separately](docs/sleep-prediction/pipeline.svg)
+
+The same diagrams as an interactive page with a day simulator:
+[`docs/sleep-prediction/index.html`](docs/sleep-prediction/index.html) (download and open
+locally) or as a [PDF](docs/sleep-prediction/sleep-prediction.pdf).
+
+### 4.1 Age prior
+
+The baby's age in completed weeks picks one row of `AGE_PRIORS`
+([`src/lib/sleep/priors.ts`](src/lib/sleep/priors.ts)). The midpoint of the wake-window
+range is the starting guess. The clamp range bounds the final window no matter what the
+logs say.
+
+| Bracket       | From week | Wake window | Midpoint | Naps | Nap length | Clamp range (0.8·min – 1.2·max) |
+| ------------- | --------: | ----------- | -------: | ---- | ---------: | ------------------------------- |
+| 0–4 weeks     | 0         | 35–60 min   | 47.5     | 4–6  | 40 min     | 28–72 min                       |
+| 5–12 weeks    | 5         | 60–90 min   | 75       | 4–5  | 45 min     | 48–108 min                      |
+| 3–4 months    | 13        | 75–120 min  | 97.5     | 3–4  | 45 min     | 60–144 min                      |
+| 5–6 months    | 22        | 120–150 min | 135      | 3    | 60 min     | 96–180 min                      |
+| 7–9 months    | 31        | 150–210 min | 180      | 2–3  | 75 min     | 120–252 min                     |
+| 10–12 months  | 44        | 180–240 min | 210      | 2    | 75 min     | 144–288 min                     |
+| 13–18 months  | 57        | 240–330 min | 285      | 1–2  | 90 min     | 192–396 min                     |
+| 19+ months    | 83        | 300–360 min | 330      | 1    | 100 min    | 240–432 min                     |
+
+### 4.2 Observed rhythm (`observe()`)
+
+Finished sleeps of the last 7 days, sorted by start. The gap between one sleep's end and
+the next one's start is a **wake window** if it lasts 10 min – 8 h and is not a night
+waking (night→night gap ending inside `nightStart`–`nightEnd`). A sleep tagged `nap`
+lasting 5–240 min is a **nap length**. Both lists are reduced with a **trimmed median**:
+drop the top and bottom 10 % (rounded down), take the median.
+
+![A day of logged sleeps; the gaps between them are measured as wake windows, the nap durations as nap lengths](docs/sleep-prediction/observe.svg)
+
+### 4.3 Blend
+
+With `n` observed wake windows:
+
+```
+w      = min(0.7, max(0, (n − 2) / 8))
+window = (1 − w) · priorMidpoint · positionFactor  +  w · observedMedian
+window = round(clamp(window, 0.8 · windowMin, 1.2 · windowMax))
+```
+
+Observations start counting after 2 windows and cap at 70 % from n ≈ 8, so the age norm
+always keeps 30 %. The same `n` sets the confidence label: `niedrig` (< 3),
+`mittel` (3–9), `hoch` (≥ 10). Nap length uses the same blend on the number of observed
+naps, clamped to 0.6–1.6 × the prior nap length.
+
+![Observed weight rises from 0 at n = 2 to the 70 % cap at n ≈ 8; background bands show the confidence levels](docs/sleep-prediction/blend-weight.svg)
+
+### 4.4 Position in the day
+
+The prior part is scaled by where the upcoming gap sits, counted by naps already done
+today (a nap in progress counts as done): **×0.9** for the first window after waking,
+**×1.1** once `napsDone ≥ round(avg naps) − 1`, **×1.0** in between.
+
+![Day split into wake windows: first ×0.9, middle ×1.0, last before bed ×1.1](docs/sleep-prediction/position-factor.svg)
+
+### 4.5 Anchor → next nap
+
+`nextNapStart = anchor + window`, shown as a ±15 min window. The anchor is:
+
+| State            | Anchor                                                          |
+| ---------------- | --------------------------------------------------------------- |
+| asleep (nap)     | predicted wake-up = nap start + nap length (at least now + 5 min) |
+| asleep (night)   | `nightEnd`; tomorrow's bedtime is shown                          |
+| awake            | end of the last sleep, if it ended within the last 16 h          |
+| no usable data   | `nightEnd`, or now if it is still earlier (said in the reasoning) |
+
+### 4.6 Bedtime
+
+```
+bedtime = max(lastNapEnd + lastWindow, target − 45)
+bedtime = clamp(bedtime, target − 60, target + 45)
+daytime naps today > expected + 30 min                  → +15 min
+daytime naps today < expected − 45 min (after target − 3 h, ≥ 1 nap) → −15 min
+nextNapStart > bedtime − napLength / 2                  → no more naps, next sleep is bedtime
+```
+
+Expected daytime sleep = average naps × prior nap length. Once the baby is asleep for the
+night, or it is more than 90 min past bedtime, tomorrow's target is shown.
+
+![Bedtime range around a 19:00 target: hard minimum 18:00, usual floor 18:15, maximum 19:45](docs/sleep-prediction/bedtime.svg)
+
+### 4.7 Example day
+
+A 4-month-old with 12 observed windows (median 110 min, naps 45 min), waking at 07:00 with
+a 19:00 target: windows of 103 / 106 / 106 / 109 min give naps at 08:43, 11:14, 13:45 and
+16:19; the next window would end after bedtime − 23 min, so the evening sleep follows at
+18:53.
+
+![Simulated day: four naps with their ±15 min windows and bedtime at 18:53](docs/sleep-prediction/simulated-day.svg)
+
+### 4.8 Feeds
+
+`nextFeedAt = lastFeedStart + interval`, where the interval is the baby's
+`feedIntervalMinutes` setting or, by age, 150 min (≤ 4 weeks), 180 (≤ 12), 210 (≤ 30),
+then 240. The reminder cron uses the same `Prediction` object, so the ring and the push
+notifications never disagree.
+
+---
+
+## 5. Local development without a Supabase project
 
 A local stand-in runs PGlite (in-process Postgres) behind the Postgres wire protocol
 with a PostgREST binary in front, so `supabase-js` works unchanged:
@@ -147,7 +259,7 @@ not of Supabase.
 
 ---
 
-## 5. Quality
+## 6. Quality
 
 Lighthouse 13 (mobile, production build, Chrome headless) – the PWA category no
 longer exists in Lighthouse 12+, installability is covered by the manifest /
@@ -164,7 +276,7 @@ migrations on PGlite, isolation source scan, CSV, reminders, demo data).
 
 Real-device QA: [docs/DEVICE-CHECKLIST.md](docs/DEVICE-CHECKLIST.md).
 
-## 6. Project map
+## 7. Project map
 
 ```
 src/app            routes: login, (app)/{heute,verlauf,statistik,einstellungen}, admin, api/*, sw.ts, manifest.ts
@@ -176,12 +288,12 @@ src/lib/push       reminder logic (pure, tested) + web-push sender
 src/i18n/de.ts     every user-facing string
 supabase/migrations
 scripts            seed, family:create, migrate, icons, dev-db
-docs               German one-pager, real-device checklist
+docs               German one-pager, real-device checklist, sleep-prediction diagrams
 ```
 
 ---
 
-## 7. Datenschutz
+## 8. Datenschutz
 
 Nuggi speichert Schlaf-, Mahlzeit- und Messdaten von Kindern. Die Datenbank liegt in
 der Schweiz (Supabase eu-central-2). Es gibt keine Konten, keine E-Mail-Adressen und
