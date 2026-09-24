@@ -9,9 +9,6 @@ import { useToast } from "@/components/ui/Toast";
 import { de } from "@/i18n/de";
 import { DEFAULT_BABY_SETTINGS, type Baby, type BabySettings } from "@/lib/types";
 
-/** Every whole minute the server accepts (validation.ts: 5–60), since feeds differ by a minute or two. */
-const BREAST_CUE_OPTIONS = Array.from({ length: 56 }, (_, i) => i + 5);
-
 interface BabyFormProps {
   open: boolean;
   onClose: () => void;
@@ -19,27 +16,6 @@ interface BabyFormProps {
 }
 
 type SexChoice = "f" | "m" | "none";
-
-export function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
-  return (
-    <label className="flex min-h-12 items-center justify-between gap-3">
-      <span>{label}</span>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className={`relative h-8 w-14 rounded-full transition-colors ${checked ? "bg-lavender" : "bg-white/15"}`}
-      >
-        <span
-          className={`absolute top-1 h-6 w-6 rounded-full bg-white transition-transform ${
-            checked ? "translate-x-7" : "translate-x-1"
-          }`}
-        />
-      </button>
-    </label>
-  );
-}
 
 export function BabyForm({ open, onClose, existing }: BabyFormProps) {
   return (
@@ -64,11 +40,19 @@ function BabyFormBody({ onClose, existing }: { onClose: () => void; existing: Ba
 
   const save = () =>
     startTransition(async () => {
+      // Reminder kinds and the Stillen-Hinweis are edited in the Erinnerungen card
+      // and saved there; leaving them out keeps this form from overwriting them.
       const payload = {
         name: name.trim(),
         birthDate,
         sex: sexChoice === "none" ? null : sexChoice,
-        settings,
+        settings: {
+          napLeadMinutes: settings.napLeadMinutes,
+          feedIntervalMinutes: settings.feedIntervalMinutes,
+          bedtimeTarget: settings.bedtimeTarget,
+          nightStart: settings.nightStart,
+          nightEnd: settings.nightEnd,
+        },
       };
       const res = existing
         ? await updateBabyAction({ id: existing.id, ...payload })
@@ -157,26 +141,6 @@ function BabyFormBody({ onClose, existing }: { onClose: () => void; existing: Ba
         </select>
       </label>
 
-      <div className="flex flex-col gap-1 rounded-2xl bg-white/5 px-4 py-2">
-        <span className="pt-1 text-sm font-medium text-muted">{de.settings.reminders}</span>
-        <Toggle label={de.settings.reminderNap} checked={settings.reminders.nap} onChange={(v) => patch({ reminders: { ...settings.reminders, nap: v } })} />
-        <Toggle label={de.settings.reminderFeed} checked={settings.reminders.feed} onChange={(v) => patch({ reminders: { ...settings.reminders, feed: v } })} />
-        <Toggle label={de.settings.reminderBedtime} checked={settings.reminders.bedtime} onChange={(v) => patch({ reminders: { ...settings.reminders, bedtime: v } })} />
-        <Toggle label={de.settings.reminderBreast} checked={settings.reminders.breast} onChange={(v) => patch({ reminders: { ...settings.reminders, breast: v } })} />
-        {settings.reminders.breast ? (
-          <label className="flex min-h-12 items-center justify-between gap-3">
-            <span>{de.settings.breastCue}</span>
-            <select className="input w-auto" value={settings.breastCueMinutes} onChange={(e) => patch({ breastCueMinutes: Number(e.target.value) })}>
-              {BREAST_CUE_OPTIONS.map((m) => (
-                <option key={m} value={m}>
-                  {m} {de.settings.minutes}
-                </option>
-              ))}
-            </select>
-          </label>
-        ) : null}
-        <p className="pb-1 text-xs text-muted">{de.settings.breastCueHint}</p>
-      </div>
 
       <div className="flex gap-3">
         {existing ? (
