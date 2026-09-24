@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import {
   HistoryTabIcon,
   SettingsTabIcon,
@@ -25,6 +26,8 @@ const tabs = [
  */
 export function TabBar() {
   const pathname = usePathname();
+  // Bumped on every tap; used as the icon's key so its animation replays.
+  const [tap, setTap] = useState<{ href: string; n: number } | null>(null);
   return (
     <nav
       aria-label="Hauptnavigation"
@@ -42,6 +45,7 @@ export function TabBar() {
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
+                onClick={() => setTap((t) => ({ href, n: (t?.n ?? 0) + 1 }))}
                 className={`flex flex-1 flex-col items-center justify-center gap-0.5 rounded-full text-[11px] font-medium transition-colors ${
                   active ? "text-lavender" : "text-muted"
                 }`}
@@ -51,7 +55,13 @@ export function TabBar() {
                     active ? "bg-lavender-soft" : ""
                   }`}
                 >
-                  <Icon size={22} />
+                  {tap?.href === href ? (
+                    <span key={tap.n} className="tab-anim flex">
+                      <Icon size={22} />
+                    </span>
+                  ) : (
+                    <Icon size={22} />
+                  )}
                 </span>
                 {label}
               </Link>

@@ -204,7 +204,9 @@ export function ClockIcon(props: IconProps) {
   return (
     <svg {...base(props)}>
       <circle cx="12" cy="12" r="8.5" />
-      <path d="M12 7.5V12l3 2" />
+      {/* Hands are separate so the tab bar can spin them (see .tab-anim). */}
+      <path className="tab-hand-min" d="M12 7.5V12" />
+      <path className="tab-hand-hour" d="M12 12l3 2" />
     </svg>
   );
 }
@@ -232,7 +234,9 @@ export function TodayTabIcon(props: IconProps) {
   return (
     <svg {...base(props)}>
       <circle cx="12" cy="12" r="8.5" />
-      <path d="M12 7.5V12l3 2" />
+      {/* Hands are separate so the tab bar can spin them (see .tab-anim). */}
+      <path className="tab-hand-min" d="M12 7.5V12" />
+      <path className="tab-hand-hour" d="M12 12l3 2" />
     </svg>
   );
 }
@@ -240,7 +244,9 @@ export function TodayTabIcon(props: IconProps) {
 export function HistoryTabIcon(props: IconProps) {
   return (
     <svg {...base(props)}>
-      <path d="M5 6.5h14M5 12h14M5 17.5h9" strokeWidth="2" />
+      <path className="tab-line" d="M5 6.5h14" strokeWidth="2" />
+      <path className="tab-line" d="M5 12h14" strokeWidth="2" />
+      <path className="tab-line" d="M5 17.5h9" strokeWidth="2" />
     </svg>
   );
 }
@@ -248,7 +254,9 @@ export function HistoryTabIcon(props: IconProps) {
 export function StatsTabIcon(props: IconProps) {
   return (
     <svg {...base(props)}>
-      <path d="M5 18.5V12M12 18.5V6M19 18.5v-4" strokeWidth="2.4" />
+      <path className="tab-bar" d="M5 18.5V12" strokeWidth="2.4" />
+      <path className="tab-bar" d="M12 18.5V6" strokeWidth="2.4" />
+      <path className="tab-bar" d="M19 18.5v-4" strokeWidth="2.4" />
     </svg>
   );
 }
@@ -256,8 +264,10 @@ export function StatsTabIcon(props: IconProps) {
 export function SettingsTabIcon(props: IconProps) {
   return (
     <svg {...base(props)}>
-      <circle cx="12" cy="12" r="3" />
-      <path d="M12 3.5v2.3M12 18.2v2.3M3.5 12h2.3M18.2 12h2.3M6 6l1.6 1.6M16.4 16.4 18 18M6 18l1.6-1.6M16.4 7.6 18 6" />
+      <g className="tab-gear">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 3.5v2.3M12 18.2v2.3M3.5 12h2.3M18.2 12h2.3M6 6l1.6 1.6M16.4 16.4 18 18M6 18l1.6-1.6M16.4 7.6 18 6" />
+      </g>
     </svg>
   );
 }
