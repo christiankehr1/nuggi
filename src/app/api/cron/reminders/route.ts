@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { ageInWeeks } from "@/lib/age";
-import { cronClaimReminder, cronListBabies, cronListEvents, cronPruneReminders } from "@/lib/db/cron";
+import { cronClaimReminder, cronListBabies, cronListEvents, cronListFamilyReminders, cronPruneReminders } from "@/lib/db/cron";
 import { env, pushConfigured } from "@/lib/env";
+import { dueDailyReminders } from "@/lib/push/daily";
 import { dueReminders } from "@/lib/push/reminders";
 import { sendToFamily } from "@/lib/push/send";
 import { predict } from "@/lib/sleep/predict";
@@ -12,9 +13,10 @@ export const maxDuration = 60;
 
 /**
  * POST /api/cron/reminders  (Authorization: Bearer CRON_SECRET)
- * Runs every 5 minutes (cron-job.org / pg_cron). For every baby with reminders
- * enabled: predict, find reminders due in [now − 5, now + 5] min, claim the
- * dedupe key, send to all of the family's devices.
+ * Runs every 5 minutes (GitHub Actions / cron-job.org). For every baby with
+ * reminders enabled: predict, find reminders due in [now − 5, now + 5] min,
+ * claim the dedupe key, send to all of the family's devices. Then the same for
+ * each family's daily reminders (fixed local time, e.g. "Vitamine 08:00").
  */
 function authorized(request: Request): boolean {
   const header = request.headers.get("authorization") ?? "";
@@ -31,7 +33,7 @@ async function run(request: Request): Promise<Response> {
   if (!pushConfigured()) return NextResponse.json({ ok: true, skipped: "push not configured" });
 
   const now = new Date();
-  const stats = { babies: 0, due: 0, sent: 0, failed: 0, removed: 0 };
+  const stats = { babies: 0, families: 0, due: 0, sent: 0, failed: 0, removed: 0 };
   const babies = await cronListBabies();
   for (const { baby, timezone } of babies) {
     const r = baby.settings.reminders;
@@ -54,6 +56,21 @@ async function run(request: Request): Promise<Response> {
       if (!claimed) continue;
       stats.due += 1;
       const res = await sendToFamily(baby.familyId, { title: d.title, body: d.body, url: d.url, tag: `nuggi-${d.kind}` });
+      stats.sent += res.sent;
+      stats.failed += res.failed;
+      stats.removed += res.removed;
+    }
+  }
+  // Family-wide daily reminders
+  const families = await cronListFamilyReminders();
+  for (const fam of families) {
+    stats.families += 1;
+    const due = dueDailyReminders({ familyId: fam.familyId, reminders: fam.dailyReminders, now, tz: fam.timezone });
+    for (const d of due) {
+      const claimed = await cronClaimReminder({ familyId: fam.familyId, babyId: null, kind: d.kind, dedupeKey: d.dedupeKey });
+      if (!claimed) continue;
+      stats.due += 1;
+      const res = await sendToFamily(fam.familyId, { title: d.title, body: d.body, url: d.url, tag: `nuggi-${d.dedupeKey}` });
       stats.sent += res.sent;
       stats.failed += res.failed;
       stats.removed += res.removed;

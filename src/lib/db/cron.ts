@@ -2,8 +2,9 @@ import "server-only";
 import { db } from "@/lib/db/client";
 import { mapBaby } from "@/lib/db/babies";
 import { mapEvent } from "@/lib/db/events";
+import { normalizeDailyReminders } from "@/lib/db/login";
 import { mapSubscription } from "@/lib/db/push";
-import type { Baby, BabyEvent, PushSubscriptionRow } from "@/lib/types";
+import type { Baby, BabyEvent, DailyReminder, PushSubscriptionRow } from "@/lib/types";
 
 /**
  * Cross-family queries for the reminder scheduler. Only the cron route and
@@ -27,6 +28,29 @@ export async function cronListBabies(): Promise<BabyWithFamily[]> {
     const fam = Array.isArray(row.families) ? row.families[0] : row.families;
     return { baby: mapBaby(row), timezone: fam?.timezone ?? "Europe/Zurich" };
   });
+}
+
+export interface FamilyReminders {
+  familyId: string;
+  timezone: string;
+  dailyReminders: DailyReminder[];
+}
+
+/** Every family that has at least one daily reminder configured. */
+export async function cronListFamilyReminders(): Promise<FamilyReminders[]> {
+  const { data, error } = await db()
+    .from("families")
+    .select("id,timezone,daily_reminders")
+    .neq("daily_reminders", "[]");
+  if (error) throw error;
+  type Row = { id: string; timezone: string; daily_reminders: unknown };
+  return ((data ?? []) as Row[])
+    .map((row) => ({
+      familyId: row.id,
+      timezone: row.timezone ?? "Europe/Zurich",
+      dailyReminders: normalizeDailyReminders(row.daily_reminders),
+    }))
+    .filter((f) => f.dailyReminders.length > 0);
 }
 
 export async function cronListEvents(familyId: string, babyId: string, since: Date): Promise<BabyEvent[]> {
@@ -53,7 +77,8 @@ export async function cronListSubscriptions(familyId: string): Promise<PushSubsc
 /** Returns false when the dedupe key already exists (reminder was sent). */
 export async function cronClaimReminder(input: {
   familyId: string;
-  babyId: string;
+  /** null for family-wide (daily) reminders */
+  babyId: string | null;
   kind: string;
   dedupeKey: string;
 }): Promise<boolean> {

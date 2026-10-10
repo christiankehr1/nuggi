@@ -61,6 +61,9 @@ Device: ______________  iOS: ______  Date: ______  Build: ______
 - [ ] Bedtime reminder arrives before the predicted bedtime.
 - [ ] Turning a kind off in the baby settings stops that reminder; "Auf diesem Gerät deaktivieren" stops all on this phone.
 - [ ] Second phone of the same family receives the same reminders.
+- [ ] Einstellungen → Tägliche Erinnerungen → "Erinnerung hinzufügen" (e.g. Vitamine, 08:00) saves and shows in the list; the toggle switches it off/on.
+- [ ] Daily push arrives at the set time (check the Actions run: `due` > 0), once per day, on both phones.
+- [ ] After the set time, opening the app shows the "Nicht vergessen" pop-up; "Erledigt" hides it for the day, "Später" for 30 minutes.
 
 ## Housekeeping
 

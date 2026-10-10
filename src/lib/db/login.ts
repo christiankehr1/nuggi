@@ -1,7 +1,7 @@
 import "server-only";
 import { db } from "@/lib/db/client";
 import { codePrefix, verifyFamilyCode } from "@/lib/family-code";
-import type { Family, Member } from "@/lib/types";
+import type { DailyReminder, Family, Member } from "@/lib/types";
 
 /**
  * Login-time queries. This is the ONLY data module that works with a raw
@@ -16,18 +16,47 @@ interface FamilyRow {
   code_prefix: string;
   code_hash: string;
   timezone: string;
+  daily_reminders: unknown;
   created_at: string;
 }
 
-export function mapFamily(row: Pick<FamilyRow, "id" | "name" | "timezone" | "created_at">): Family {
-  return { id: row.id, name: row.name, timezone: row.timezone, createdAt: row.created_at };
+export const FAMILY_COLUMNS = "id,name,timezone,daily_reminders,created_at";
+
+/** Tolerant parse of the JSON column: unknown shapes are dropped, never thrown. */
+export function normalizeDailyReminders(raw: unknown): DailyReminder[] {
+  if (!Array.isArray(raw)) return [];
+  const out: DailyReminder[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== "object") continue;
+    const r = item as Record<string, unknown>;
+    if (typeof r.id !== "string" || typeof r.name !== "string" || typeof r.time !== "string") continue;
+    out.push({
+      id: r.id,
+      name: r.name,
+      time: r.time,
+      enabled: r.enabled !== false,
+      push: r.push !== false,
+      inApp: r.inApp !== false,
+    });
+  }
+  return out;
+}
+
+export function mapFamily(row: Pick<FamilyRow, "id" | "name" | "timezone" | "created_at"> & { daily_reminders?: unknown }): Family {
+  return {
+    id: row.id,
+    name: row.name,
+    timezone: row.timezone,
+    dailyReminders: normalizeDailyReminders(row.daily_reminders),
+    createdAt: row.created_at,
+  };
 }
 
 /** Find the family whose bcrypt hash matches the (normalised) code. */
 export async function findFamilyByCode(code: string): Promise<Family | null> {
   const { data, error } = await db()
     .from("families")
-    .select("id,name,code_prefix,code_hash,timezone,created_at")
+    .select(`code_prefix,code_hash,${FAMILY_COLUMNS}`)
     .eq("code_prefix", codePrefix(code));
   if (error) throw error;
   for (const row of (data ?? []) as FamilyRow[]) {

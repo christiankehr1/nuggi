@@ -21,7 +21,7 @@ export interface AdminFamilyRow extends Family {
 export async function adminListFamilies(): Promise<AdminFamilyRow[]> {
   const { data, error } = await db()
     .from("families")
-    .select("id,name,code_prefix,timezone,created_at,members(name),babies(name)")
+    .select("id,name,code_prefix,timezone,daily_reminders,created_at,members(name),babies(name)")
     .order("created_at", { ascending: false });
   if (error) throw error;
   type Row = {
@@ -29,6 +29,7 @@ export async function adminListFamilies(): Promise<AdminFamilyRow[]> {
     name: string;
     code_prefix: string;
     timezone: string;
+    daily_reminders: unknown;
     created_at: string;
     members: { name: string }[] | null;
     babies: { name: string }[] | null;
@@ -59,7 +60,7 @@ export async function adminCreateFamily(
         code_hash: await hashFamilyCode(code),
         timezone,
       })
-      .select("id,name,timezone,created_at")
+      .select("id,name,timezone,daily_reminders,created_at")
       .single();
     if (error) {
       if (attempt === 2) throw error;

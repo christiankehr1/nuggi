@@ -31,6 +31,15 @@ export const babySettingsSchema = z.object({
   reminders: z.object({ nap: z.boolean(), feed: z.boolean(), bedtime: z.boolean() }),
 });
 
+export const dailyReminderSchema = z.object({
+  id: z.string().min(1).max(64),
+  name: z.string().trim().min(1).max(40),
+  time: hm,
+  enabled: z.boolean(),
+  push: z.boolean(),
+  inApp: z.boolean(),
+});
+
 /** Plausibility ranges per measurement kind. */
 export const MEASUREMENT_RANGES: Record<z.infer<typeof measurementKind>, [number, number]> = {
   weight_g: [500, 30000],

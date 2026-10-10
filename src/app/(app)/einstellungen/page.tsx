@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { BabiesSection } from "@/components/einstellungen/BabiesSection";
+import { DailyRemindersSection } from "@/components/einstellungen/DailyRemindersSection";
 import { FamilySection } from "@/components/einstellungen/FamilySection";
 import { RemindersSection } from "@/components/einstellungen/RemindersSection";
 import { de } from "@/i18n/de";
@@ -22,6 +23,7 @@ export default async function EinstellungenPage() {
         <BabiesSection babies={babies} tz={tz} />
       </Suspense>
       <RemindersSection vapidPublicKey={pushConfigured() ? env().VAPID_PUBLIC_KEY! : null} />
+      <DailyRemindersSection reminders={family.dailyReminders} />
       <FamilySection family={family} member={member} members={members} />
       <section className="card flex flex-col gap-3 p-5">
         <h2 className="text-sm font-medium text-muted">{de.settings.export}</h2>

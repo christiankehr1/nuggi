@@ -258,6 +258,24 @@ export const de = {
     reminderFeed: "Mahlzeiten",
     reminderBedtime: "Schlafenszeit",
     testPush: "Test-Mitteilung senden",
+    dailyReminders: "Tägliche Erinnerungen",
+    dailyRemindersHint:
+      "Zum Beispiel „Vitamine“ jeden Morgen um 08:00 – als Push-Mitteilung und/oder als Hinweis in der App, für alle in der Familie.",
+    dailyRemindersEmpty: "Noch keine tägliche Erinnerung eingerichtet.",
+    addDailyReminder: "Erinnerung hinzufügen",
+    editDailyReminder: "Erinnerung bearbeiten",
+    dailyReminderName: "Bezeichnung",
+    dailyReminderNamePlaceholder: "Vitamine",
+    dailyReminderTime: "Uhrzeit",
+    dailyReminderEnabled: "Aktiv",
+    dailyReminderPush: "Push-Mitteilung",
+    dailyReminderInApp: "Hinweis in der App",
+    dailyReminderPushHint: "Push kommt nur auf Geräten an, auf denen Erinnerungen aktiviert sind.",
+    dailyReminderChannelRequired: "Wähle mindestens einen Weg: Push oder Hinweis in der App.",
+    dailyReminderDaily: (time: string) => `täglich um ${time}`,
+    dailyReminderOff: "aus",
+    dailyReminderMax: (n: number) => `Maximal ${n} tägliche Erinnerungen.`,
+    deleteDailyReminder: "Erinnerung löschen",
     testPushSent: "Gesendet – schau auf dein Gerät.",
     myName: "Mein Name",
     rename: "Name ändern",
@@ -313,8 +331,18 @@ export const de = {
     bedtimeTitle: "Gleich ist Schlafenszeit 🌙",
     bedtimeBody: (name: string, time: string) =>
       `Für ${name} passt gegen ${time} das Bett. Licht dimmen, Ritual starten.`,
+    dailyTitle: (name: string) => `${name} – nicht vergessen ⏰`,
+    dailyBody: (name: string, time: string) => `Tägliche Erinnerung: ${name} (${time}).`,
     testTitle: "Nuggi ist bereit 🎉",
     testBody: "So sehen Erinnerungen aus. Schlaf gut!",
+  },
+
+  dailyPopup: {
+    title: "Nicht vergessen",
+    body: (name: string, time: string) => `${name} – tägliche Erinnerung um ${time}.`,
+    done: "Erledigt",
+    later: "Später erinnern",
+    laterHint: "Der Hinweis kommt in 30 Minuten wieder.",
   },
 
   prediction: {

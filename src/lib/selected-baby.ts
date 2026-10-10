@@ -28,6 +28,7 @@ export async function resolveBabyContext(scope: FamilyScope): Promise<BabyContex
     id: scope.familyId,
     name: "",
     timezone: DEFAULT_TIMEZONE,
+    dailyReminders: [],
     createdAt: new Date().toISOString(),
   };
   return { family: fam, babies, baby, tz: fam.timezone || DEFAULT_TIMEZONE };

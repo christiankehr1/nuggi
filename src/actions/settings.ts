@@ -6,6 +6,8 @@ import { de } from "@/i18n/de";
 import { fail, ok, type ActionResult } from "@/lib/action-result";
 import { requireSession } from "@/lib/auth";
 import { listMembers, renameMember, updateFamily } from "@/lib/db/families";
+import { MAX_DAILY_REMINDERS } from "@/lib/types";
+import { dailyReminderSchema } from "@/lib/validation";
 
 export async function renameMemberAction(input: unknown): Promise<ActionResult<undefined>> {
   const scope = await requireSession();
@@ -37,6 +39,22 @@ export async function updateFamilyAction(input: unknown): Promise<ActionResult<u
     }
   }
   await updateFamily(scope, parsed.data);
+  revalidatePath("/", "layout");
+  return ok(undefined);
+}
+
+/** Replace the family's list of daily reminders (name + local time + channels). */
+export async function saveDailyRemindersAction(input: unknown): Promise<ActionResult<undefined>> {
+  const scope = await requireSession();
+  const parsed = z.object({ reminders: z.array(dailyReminderSchema).max(MAX_DAILY_REMINDERS) }).safeParse(input);
+  if (!parsed.success) {
+    const tooMany = parsed.error.issues.some((i) => i.code === "too_big");
+    return fail(tooMany ? de.settings.dailyReminderMax(MAX_DAILY_REMINDERS) : de.errors.validation, "validation");
+  }
+  const ids = new Set(parsed.data.reminders.map((r) => r.id));
+  if (ids.size !== parsed.data.reminders.length) return fail(de.errors.validation, "validation");
+  if (parsed.data.reminders.some((r) => !r.push && !r.inApp)) return fail(de.settings.dailyReminderChannelRequired, "validation");
+  await updateFamily(scope, { dailyReminders: parsed.data.reminders });
   revalidatePath("/", "layout");
   return ok(undefined);
 }

@@ -129,6 +129,22 @@ Choices made while building Nuggi that are not obvious from the code.
   endpoint against the family's subscriptions, and explains the standalone
   requirement on iOS instead of failing silently.
 
+## Daily reminders
+
+- **Stored on the family** (`families.daily_reminders` jsonb array), not per baby:
+  "give the kids their vitamins" concerns the household, and every member sees
+  and edits the same list. Max 10 entries, each `{id, name, time, enabled, push, inApp}`.
+- **Push dedupe key** = `${familyId}:daily:${id}:${localDay}` in `reminders_sent`
+  (`baby_id` is nullable since migration 0002). The send window is
+  `[time − 20 min, time + 5 min]` so a delayed GitHub Actions run still delivers
+  once; the per-day key makes the wide window safe.
+- **In-app pop-up is per device**: acknowledgements ("Erledigt") are stored in
+  localStorage per reminder and local day. A server-side "done" state would be
+  nicer for two-parent households but needs a new table and conflict handling;
+  deferred until it is actually missed.
+- **The pop-up renders nothing before hydration** (`useSyncExternalStore`
+  mounted flag) so server and client markup match even when a reminder is due.
+
 ## Phase 6 – Polish
 
 - **Lighthouse 12+ removed the PWA category.** Installability is verified via the

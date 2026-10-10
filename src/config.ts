@@ -26,6 +26,12 @@ export const CODE_SUFFIX_LENGTH = 4;
 /** Reminder scheduler window (± minutes) – matches the 5-minute cron cadence. */
 export const REMINDER_WINDOW_MINUTES = 5;
 export const REMINDER_DEDUPE_ROUND_MINUTES = 10;
+/**
+ * Daily reminders (fixed local time) are still sent up to this many minutes late,
+ * so a delayed cron run (GitHub Actions can lag) does not skip the day. Dedupe is
+ * per local day, so late and on-time runs never both send.
+ */
+export const DAILY_REMINDER_LATE_MINUTES = 20;
 export const PUSH_MAX_FAILURES = 3;
 
 /** Theme colours (kept in sync with globals.css tokens). */

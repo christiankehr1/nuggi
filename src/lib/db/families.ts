@@ -1,13 +1,13 @@
 import "server-only";
 import { db } from "@/lib/db/client";
 import { withFamily, type FamilyScope } from "@/lib/db/withFamily";
-import { mapFamily, mapMember } from "@/lib/db/login";
-import type { Family, Member } from "@/lib/types";
+import { FAMILY_COLUMNS, mapFamily, mapMember } from "@/lib/db/login";
+import type { DailyReminder, Family, Member } from "@/lib/types";
 
 export async function getFamily(scope: FamilyScope): Promise<Family | null> {
   const { data, error } = await db()
     .from("families")
-    .select("id,name,timezone,created_at")
+    .select(FAMILY_COLUMNS)
     .eq("id", scope.familyId)
     .maybeSingle();
   if (error) throw error;
@@ -16,9 +16,13 @@ export async function getFamily(scope: FamilyScope): Promise<Family | null> {
 
 export async function updateFamily(
   scope: FamilyScope,
-  patch: { name?: string; timezone?: string },
+  patch: { name?: string; timezone?: string; dailyReminders?: DailyReminder[] },
 ): Promise<void> {
-  const { error } = await db().from("families").update(patch).eq("id", scope.familyId);
+  const row: Record<string, unknown> = {};
+  if (patch.name !== undefined) row.name = patch.name;
+  if (patch.timezone !== undefined) row.timezone = patch.timezone;
+  if (patch.dailyReminders !== undefined) row.daily_reminders = patch.dailyReminders;
+  const { error } = await db().from("families").update(row).eq("id", scope.familyId);
   if (error) throw error;
 }
 

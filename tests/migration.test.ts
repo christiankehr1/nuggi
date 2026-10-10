@@ -77,6 +77,27 @@ describe("migrations", () => {
     });
   });
 
+  it("families start without daily reminders; reminders_sent accepts family-wide rows", async () => {
+    const { familyId, babyId } = await seedFamily("Daily", "HHH");
+    const fam = await pg.query<{ daily_reminders: unknown }>("select daily_reminders from families where id = $1", [familyId]);
+    expect(fam.rows[0]!.daily_reminders).toEqual([]);
+    await pg.query(
+      "insert into reminders_sent (family_id, baby_id, kind, dedupe_key) values ($1, null, 'daily', $2)",
+      [familyId, `${familyId}:daily:r1:2026-09-21`],
+    );
+    await pg.query(
+      "insert into reminders_sent (family_id, baby_id, kind, dedupe_key) values ($1, $2, 'nap', $3)",
+      [familyId, babyId, `${babyId}:nap:2026-09-21T10:00:00.000Z`],
+    );
+    // the same day key cannot be claimed twice
+    await expect(
+      pg.query("insert into reminders_sent (family_id, baby_id, kind, dedupe_key) values ($1, null, 'daily', $2)", [
+        familyId,
+        `${familyId}:daily:r1:2026-09-21`,
+      ]),
+    ).rejects.toThrow();
+  });
+
   it("allows only one running sleep and one running feed per baby", async () => {
     const { familyId, babyId } = await seedFamily("Running", "BBB");
     await pg.query(

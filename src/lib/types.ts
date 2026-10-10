@@ -38,10 +38,29 @@ export const DEFAULT_BABY_SETTINGS: BabySettings = {
   reminders: { nap: true, feed: true, bedtime: true },
 };
 
+/**
+ * A family-wide reminder that fires once a day at a fixed local time,
+ * e.g. "Vitamine" at 08:00. Delivered as push and/or as an in-app pop-up.
+ */
+export interface DailyReminder {
+  id: string;
+  name: string;
+  /** "HH:mm" in the family's timezone */
+  time: string;
+  enabled: boolean;
+  /** send a push notification to all devices of the family */
+  push: boolean;
+  /** show a pop-up when the app is open (or next opened) after `time` */
+  inApp: boolean;
+}
+
+export const MAX_DAILY_REMINDERS = 10;
+
 export interface Family {
   id: string;
   name: string;
   timezone: string;
+  dailyReminders: DailyReminder[];
   createdAt: string;
 }
 
@@ -108,4 +127,4 @@ export interface PushSubscriptionRow {
   failures: number;
 }
 
-export type ReminderKind = "nap" | "feed" | "bedtime";
+export type ReminderKind = "nap" | "feed" | "bedtime" | "daily";

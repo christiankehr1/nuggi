@@ -86,6 +86,15 @@ to all of the family's devices and records them in `reminders_sent` so nothing i
 sent twice. Feed reminders are muted between `nightStart` and `nightEnd` for babies
 older than 12 weeks. Dead subscriptions (3× 404/410) are deleted.
 
+The same run also sends the family's **daily reminders** (*Einstellungen → Tägliche
+Erinnerungen*, e.g. "Vitamine" at 08:00): each one is pushed once per local day,
+up to 20 minutes late if a cron run was delayed. Reminders with "Hinweis in der
+App" enabled additionally show a pop-up in the app once the time has passed, until
+someone taps "Erledigt" on that device (or "Später", which snoozes for 30 minutes).
+
+When a migration is added (e.g. `0002_daily_reminders.sql`), run `npm run db:migrate`
+against the Supabase database or paste the file into the SQL editor.
+
 Vercel Hobby crons run at most once per day, so trigger the endpoint externally:
 
 ### Option A – cron-job.org (recommended, free)
