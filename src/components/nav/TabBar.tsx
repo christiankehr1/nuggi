@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import {
   HistoryTabIcon,
   SettingsTabIcon,
@@ -17,15 +18,26 @@ const tabs = [
   { href: "/einstellungen", label: de.tabs.settings, Icon: SettingsTabIcon },
 ] as const;
 
+/**
+ * Floating tab bar: a frosted pill that hovers --tabbar-gap above the home
+ * indicator. The wrapper is click-through so the page underneath stays
+ * scrollable right up to the screen edge; pages pad their bottom with
+ * --content-bottom so nothing ends up hidden behind the pill.
+ */
 export function TabBar() {
   const pathname = usePathname();
+  // Bumped on every tap; used as the icon's key so its animation replays.
+  const [tap, setTap] = useState<{ href: string; n: number } | null>(null);
   return (
     <nav
       aria-label="Hauptnavigation"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-card-border bg-navy-900/85 backdrop-blur-xl"
-      style={{ paddingBottom: "var(--safe-bottom)" }}
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-4"
+      style={{ paddingBottom: "calc(var(--safe-bottom) + var(--tabbar-gap))" }}
     >
-      <ul className="mx-auto flex max-w-md items-stretch justify-around px-2" style={{ height: "var(--tabbar-height)" }}>
+      <ul
+        className="pointer-events-auto flex w-full max-w-[26rem] items-stretch justify-around rounded-full border border-card-border bg-navy-800/80 px-2 shadow-[0_12px_40px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl"
+        style={{ height: "var(--tabbar-height)" }}
+      >
         {tabs.map(({ href, label, Icon }) => {
           const active = pathname === href || pathname.startsWith(`${href}/`);
           return (
@@ -33,7 +45,8 @@ export function TabBar() {
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`flex flex-1 flex-col items-center justify-center gap-0.5 rounded-2xl text-[11px] font-medium transition-colors ${
+                onClick={() => setTap((t) => ({ href, n: (t?.n ?? 0) + 1 }))}
+                className={`flex flex-1 flex-col items-center justify-center gap-0.5 rounded-full text-[11px] font-medium transition-colors ${
                   active ? "text-lavender" : "text-muted"
                 }`}
               >
@@ -42,7 +55,13 @@ export function TabBar() {
                     active ? "bg-lavender-soft" : ""
                   }`}
                 >
-                  <Icon size={22} />
+                  {tap?.href === href ? (
+                    <span key={tap.n} className="tab-anim flex">
+                      <Icon size={22} />
+                    </span>
+                  ) : (
+                    <Icon size={22} />
+                  )}
                 </span>
                 {label}
               </Link>

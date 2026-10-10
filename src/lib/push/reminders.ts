@@ -1,9 +1,9 @@
-import { REMINDER_DEDUPE_ROUND_MINUTES, REMINDER_WINDOW_MINUTES } from "@/config";
+import { BREAST_CUE_GRACE_MINUTES, REMINDER_DEDUPE_ROUND_MINUTES, REMINDER_WINDOW_MINUTES } from "@/config";
 import { de } from "@/i18n/de";
-import { durationLabel } from "@/lib/format";
+import { durationLabel, sideLabel } from "@/lib/format";
 import type { Prediction } from "@/lib/sleep/predict";
 import { addMinutes, fmtTime, isInLocalWindow, roundToMinutes } from "@/lib/time";
-import type { BabySettings, ReminderKind } from "@/lib/types";
+import type { BabyEvent, BabySettings, ReminderKind } from "@/lib/types";
 
 /**
  * Pure reminder logic: which notifications are due right now for a baby.
@@ -28,6 +28,8 @@ export interface ReminderContext {
   prediction: Prediction;
   now: Date;
   tz: string;
+  /** the feed running right now, if any (breast feeds are timers) */
+  runningFeed?: BabyEvent | null;
 }
 
 function inWindow(target: Date, now: Date, windowMinutes = REMINDER_WINDOW_MINUTES): boolean {
@@ -85,6 +87,28 @@ export function dueReminders(ctx: ReminderContext): DueReminder[] {
         dedupeKey: dedupeKey(babyId, "bedtime", at),
         title: de.push.bedtimeTitle,
         body: de.push.bedtimeBody(babyName, fmtTime(prediction.bedtime, tz)),
+        url: "/heute",
+      });
+    }
+  }
+
+  // Breast cue: once the running breast feed has lasted breastCueMinutes, exactly once per
+  // feed (keyed by the event). No ±window: the first cron run after the threshold sends it,
+  // so the scheduler's interval is the only lag. A feed still running an hour past the cue
+  // is a forgotten timer and gets no cue.
+  const feed = ctx.runningFeed;
+  if (settings.reminders.breast && feed && feed.subtype === "breast" && feed.endedAt === null) {
+    const start = new Date(feed.startedAt);
+    const elapsed = (now.getTime() - start.getTime()) / 60_000;
+    const cue = settings.breastCueMinutes;
+    if (elapsed >= cue && elapsed < cue + BREAST_CUE_GRACE_MINUTES) {
+      const side = feed.side === "L" || feed.side === "R" ? sideLabel(feed.side) : null;
+      out.push({
+        kind: "breast",
+        at: addMinutes(start, cue),
+        dedupeKey: `${babyId}:breast:${feed.id}`,
+        title: de.push.breastTitle(cue),
+        body: de.push.breastBody(babyName, cue, side),
         url: "/heute",
       });
     }

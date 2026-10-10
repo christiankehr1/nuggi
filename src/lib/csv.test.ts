@@ -4,7 +4,7 @@ import type { Baby, BabyEvent, Measurement } from "./types";
 
 const baby: Baby = {
   id: "b1", familyId: "f", name: "Emma", birthDate: "2026-05-20", sex: "f",
-  settings: { napLeadMinutes: 15, feedIntervalMinutes: null, bedtimeTarget: "19:00", nightStart: "19:00", nightEnd: "07:00", reminders: { nap: true, feed: true, bedtime: true } },
+  settings: { napLeadMinutes: 15, feedIntervalMinutes: null, bedtimeTarget: "19:00", nightStart: "19:00", nightEnd: "07:00", reminders: { nap: true, feed: true, bedtime: true, breast: true }, breastCueMinutes: 15 },
   createdAt: "2026-05-20T00:00:00Z",
 };
 

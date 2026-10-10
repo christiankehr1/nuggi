@@ -2,11 +2,12 @@
 
 import { formatInTimeZone } from "date-fns-tz";
 import { useState } from "react";
-import { MoonIcon, SunIcon } from "@/components/icons";
+import { BottleIcon, BowlIcon, BreastIcon, MoonIcon, SunIcon } from "@/components/icons";
 import { WhySheet } from "@/components/heute/WhySheet";
 import { useNow } from "@/hooks/useNow";
 import { de } from "@/i18n/de";
-import { durationLabel } from "@/lib/format";
+import { durationLabel, eventDetail } from "@/lib/format";
+import { fmtTime } from "@/lib/time";
 import type { BabyEvent } from "@/lib/types";
 
 /** Prediction serialised for the client (ISO strings instead of Dates). */
@@ -26,16 +27,31 @@ export interface PredictionView {
 
 interface RingProps {
   sleeps: BabyEvent[];
+  /** Today's feeds – drawn as small markers on the ring. */
+  feeds?: BabyEvent[];
   prediction: PredictionView;
   tz: string;
   todayKey: string;
 }
 
-const SIZE = 320;
-const CX = SIZE / 2;
-const CY = SIZE / 2;
 const R = 132;
 const STROKE = 16;
+/** Wake-up / bedtime markers sit outside the ring … */
+const MARKER_R = 12;
+const MARKER_DIST = R + STROKE + 8;
+/** … so the viewBox needs room for them on every side, or the ones at 6/18 h get clipped. */
+const SIZE = 2 * (MARKER_DIST + MARKER_R + 4);
+const CX = SIZE / 2;
+const CY = SIZE / 2;
+/** Feed markers sit on the ring itself. */
+const FEED_R = 9;
+const FEED_ICON = 12;
+
+function feedIcon(subtype: BabyEvent["subtype"]) {
+  if (subtype === "breast") return BreastIcon;
+  if (subtype === "solids") return BowlIcon;
+  return BottleIcon;
+}
 
 function minuteOfDay(iso: string, tz: string): number {
   return Number(formatInTimeZone(new Date(iso), tz, "H")) * 60 + Number(formatInTimeZone(new Date(iso), tz, "m"));
@@ -76,7 +92,7 @@ function segmentsForToday(e: BabyEvent, tz: string, todayKey: string, now: Date)
   return [];
 }
 
-export function Ring({ sleeps, prediction, tz, todayKey }: RingProps) {
+export function Ring({ sleeps, feeds = [], prediction, tz, todayKey }: RingProps) {
   const now = useNow(30_000);
   const [why, setWhy] = useState(false);
   const nowMin = minuteOfDay(now.toISOString(), tz);
@@ -124,9 +140,20 @@ export function Ring({ sleeps, prediction, tz, todayKey }: RingProps) {
   const wakeMarker = prediction.todayWakeUp && dayKey(prediction.todayWakeUp, tz) === todayKey ? minuteOfDay(prediction.todayWakeUp, tz) : null;
   const bedMarker = dayKey(prediction.bedtime, tz) === todayKey ? minuteOfDay(prediction.bedtime, tz) : null;
   const [nx, ny] = polar(angle(nowMin));
+  const feedMarkers = feeds
+    .filter((e) => e.kind === "feed" && dayKey(e.startedAt, tz) === todayKey)
+    .map((e) => {
+      const min = minuteOfDay(e.startedAt, tz);
+      const [x, y] = polar(angle(min));
+      const running = e.endedAt === null;
+      const label = de.today.ringFeedAt(eventDetail(e), fmtTime(e.startedAt, tz));
+      return { id: e.id, min, x, y, running, Icon: feedIcon(e.subtype), label: running ? `${label} · ${de.events.runningLabel}` : label };
+    })
+    // chronological, so when two feeds are minutes apart the later one is drawn on top
+    .sort((a, b) => a.min - b.min);
 
   return (
-    <div className="relative mx-auto w-full max-w-[340px] animate-fade-up">
+    <div className="relative mx-auto w-full max-w-[360px] animate-fade-up">
       <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="h-auto w-full" role="img" aria-label={headline}>
         <defs>
           <radialGradient id="ring-glow" cx="50%" cy="50%" r="50%">
@@ -171,20 +198,34 @@ export function Ring({ sleeps, prediction, tz, todayKey }: RingProps) {
             opacity="0.9"
           />
         ) : null}
+        {/* feed markers (on the ring, under the now marker) */}
+        {feedMarkers.map((f) => (
+          <g
+            key={f.id}
+            transform={`translate(${f.x.toFixed(1)} ${f.y.toFixed(1)})`}
+            className={f.running ? "animate-pulse-soft" : undefined}
+          >
+            <title>{f.label}</title>
+            <circle r={FEED_R} fill="var(--mint)" stroke="var(--navy-900)" strokeWidth={2} />
+            <g transform={`translate(${-FEED_ICON / 2} ${-FEED_ICON / 2})`} color="var(--navy-900)">
+              <f.Icon size={FEED_ICON} strokeWidth={2.6} />
+            </g>
+          </g>
+        ))}
         {/* now marker */}
         <circle cx={nx} cy={ny} r={5} fill="var(--text)" stroke="var(--navy-900)" strokeWidth={2} />
         {/* wake-up + bedtime markers */}
         {wakeMarker !== null ? (
-          <g transform={`translate(${polar(angle(wakeMarker), R + STROKE + 8).map((v) => v.toFixed(1)).join(" ")})`}>
-            <circle r={12} fill="var(--navy-800)" stroke="var(--sun)" strokeWidth={1.5} />
+          <g transform={`translate(${polar(angle(wakeMarker), MARKER_DIST).map((v) => v.toFixed(1)).join(" ")})`}>
+            <circle r={MARKER_R} fill="var(--navy-800)" stroke="var(--sun)" strokeWidth={1.5} />
             <g transform="translate(-8 -8)" color="var(--sun)">
               <SunIcon size={16} />
             </g>
           </g>
         ) : null}
         {bedMarker !== null ? (
-          <g transform={`translate(${polar(angle(bedMarker), R + STROKE + 8).map((v) => v.toFixed(1)).join(" ")})`}>
-            <circle r={12} fill="var(--navy-800)" stroke="var(--coral)" strokeWidth={1.5} />
+          <g transform={`translate(${polar(angle(bedMarker), MARKER_DIST).map((v) => v.toFixed(1)).join(" ")})`}>
+            <circle r={MARKER_R} fill="var(--navy-800)" stroke="var(--coral)" strokeWidth={1.5} />
             <g transform="translate(-8 -8)" color="var(--coral)">
               <MoonIcon size={16} />
             </g>

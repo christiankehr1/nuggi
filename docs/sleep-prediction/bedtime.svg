@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-16 -16 892 152" width="892" height="152" role="img" aria-label="Bedtime scale around a 19:00 target: allowed range 18:00 to 19:45, with the floor at 18:15."><style>
+svg{--panel:#ffffff;--panel-2:#ecebfb;--line:rgba(27,30,75,.14);--text:#15173d;--muted:#5a5c8f;--lavender:#5b5ce0;--lav-soft:rgba(91,92,224,.14);--sun:#b07a10;--sun-soft:rgba(214,158,40,.18);--coral:#c2553b;--coral-soft:rgba(194,85,59,.14);--mint:#1f8a6e;--mint-soft:rgba(31,138,110,.14)}
+@media (prefers-color-scheme: dark){svg{--panel:#13163a;--panel-2:#1b1e4b;--line:rgba(255,255,255,.12);--text:#f4f4fa;--muted:#a9a9d6;--lavender:#8b8cf6;--lav-soft:rgba(139,140,246,.2);--sun:#f5c86b;--sun-soft:rgba(245,200,107,.2);--coral:#e8846b;--coral-soft:rgba(232,132,107,.2);--mint:#9be3cf;--mint-soft:rgba(155,227,207,.2)}}
+text{font-family:ui-monospace,"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;fill:var(--muted);font-size:12px}
+.t-strong{fill:var(--text);font-weight:600}
+.t-disp{font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;fill:var(--text);font-size:15px;font-weight:700}
+</style><rect x="-16" y="-16" width="892" height="152" rx="16" style="fill:var(--panel)"/>
+      <!-- 17:30..20:15 → 1 min = 4.8px, x0=40 at 17:30 -->
+      <line x1="40" y1="60" x2="832" y2="60" style="stroke:var(--line);stroke-width:2"></line>
+      <rect x="184" y="44" width="504" height="32" rx="8" style="fill:var(--sun-soft);stroke:var(--sun)"></rect>
+      <rect x="256" y="44" width="432" height="32" rx="8" style="fill:var(--sun-soft)"></rect>
+      <line x1="472" y1="30" x2="472" y2="90" style="stroke:var(--text);stroke-width:2"></line>
+      <text x="446" y="22" class="t-strong">target 19:00</text>
+      <text x="184" y="104">18:00 hard min</text><text x="266" y="36">18:15 usual floor</text><text x="640" y="104">19:45 max</text>
+      <text x="40" y="104">17:30</text><text x="790" y="104">20:15</text>
+    </svg>

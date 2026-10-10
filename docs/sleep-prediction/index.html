@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nuggi Sleep Predictor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  color-scheme: dark;
+  --ground:#0b0d2b; --panel:#13163a; --panel-2:#1b1e4b; --line:rgba(255,255,255,.1);
+  --text:#f4f4fa; --muted:#a9a9d6;
+  --lavender:#8b8cf6; --lav-soft:rgba(139,140,246,.2);
+  --sun:#f5c86b; --sun-soft:rgba(245,200,107,.2);
+  --coral:#e8846b; --coral-soft:rgba(232,132,107,.2);
+  --mint:#9be3cf; --mint-soft:rgba(155,227,207,.2);
+  --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", system-ui, -apple-system, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    color-scheme: light;
+    --ground:#f5f5fc; --panel:#ffffff; --panel-2:#ecebfb; --line:rgba(27,30,75,.12);
+    --text:#15173d; --muted:#5a5c8f;
+    --lavender:#5b5ce0; --lav-soft:rgba(91,92,224,.14);
+    --sun:#b07a10; --sun-soft:rgba(214,158,40,.18);
+    --coral:#c2553b; --coral-soft:rgba(194,85,59,.14);
+    --mint:#1f8a6e; --mint-soft:rgba(31,138,110,.14);
+  }
+}
+:root[data-theme="light"]{
+  color-scheme: light;
+  --ground:#f5f5fc; --panel:#ffffff; --panel-2:#ecebfb; --line:rgba(27,30,75,.12);
+  --text:#15173d; --muted:#5a5c8f;
+  --lavender:#5b5ce0; --lav-soft:rgba(91,92,224,.14);
+  --sun:#b07a10; --sun-soft:rgba(214,158,40,.18);
+  --coral:#c2553b; --coral-soft:rgba(194,85,59,.14);
+  --mint:#1f8a6e; --mint-soft:rgba(31,138,110,.14);
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--text);font:16px/1.6 var(--body);padding-inline:16px;padding-block:40px 64px}
+.wrap{max-width:900px;margin:0 auto;display:grid;gap:56px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:clamp(2rem,5vw,3rem);font-weight:700;letter-spacing:-.02em}
+h2{font-size:1.6rem;font-weight:700;letter-spacing:-.01em}
+h3{font-size:1.1rem;font-weight:500}
+p{margin:0;max-width:65ch}
+.lede{color:var(--muted);font-size:1.1rem;margin-top:12px}
+.eyebrow{font:600 .75rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--lavender)}
+.step{display:grid;gap:16px}
+.step header{display:grid;gap:8px}
+code,.mono{font-family:var(--mono);font-size:.88em}
+code{background:var(--panel-2);padding:1px 6px;border-radius:6px}
+.fig{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:20px;overflow-x:auto}
+.fig svg{display:block;width:100%;height:auto}
+.fig.wide svg{min-width:720px}
+.cap{color:var(--muted);font-size:.9rem}
+svg text{font-family:var(--mono);fill:var(--muted);font-size:12px}
+svg .t-strong{fill:var(--text);font-weight:600}
+svg .t-disp{font-family:var(--display);fill:var(--text);font-size:15px;font-weight:700}
+.formula{font-family:var(--mono);font-size:.95rem;background:var(--panel-2);border-radius:14px;padding:14px 16px;overflow-x:auto;white-space:pre;line-height:1.7}
+.formula .k{color:var(--lavender)} .formula .s{color:var(--sun)} .formula .c{color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font:600 .72rem/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.num{font-family:var(--mono)}
+tr.hl td{background:var(--lav-soft)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.chip{display:inline-block;font:600 .75rem/1 var(--mono);padding:5px 9px;border-radius:999px}
+.chip.low{background:var(--coral-soft);color:var(--coral)}
+.chip.mid{background:var(--sun-soft);color:var(--sun)}
+.chip.high{background:var(--mint-soft);color:var(--mint)}
+.cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.case{border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:grid;gap:6px;align-content:start}
+.case b{font-family:var(--display);font-size:1.02rem}
+.case p{font-size:.92rem;color:var(--muted)}
+/* playground */
+.play{background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:20px;display:grid;gap:20px}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.ctl{display:grid;gap:6px}
+.ctl label{font:600 .75rem/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+.ctl label output{color:var(--text);letter-spacing:0;text-transform:none}
+input[type=range]{width:100%;accent-color:var(--lavender)}
+select{font:inherit;background:var(--panel-2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+select:focus-visible,input:focus-visible{outline:2px solid var(--lavender);outline-offset:2px}
+.readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.ro{background:var(--panel-2);border-radius:14px;padding:12px 14px;display:grid;gap:2px}
+.ro span{font:600 .7rem/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.ro strong{font:600 1.35rem/1.2 var(--mono);font-variant-numeric:tabular-nums}
+.ro small{color:var(--muted);font-size:.8rem}
+.why{margin:0;padding-left:1.2em;display:grid;gap:4px;font-size:.93rem;color:var(--muted)}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:16px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header class="step">
+  <span class="eyebrow">nuggi · src/lib/sleep/predict.ts</span>
+  <h1>How Nuggi guesses the next nap</h1>
+  <p class="lede">No machine learning, no server call. Start from what's typical for the baby's age, lean more on the baby's own logged rhythm the more of it there is, then count forward from the last time the baby woke up. The same inputs always give the same answer, and every step writes a line into the “Warum?” (“why?”) panel on the Heute screen.</p>
+</header>
+
+<section class="step" aria-labelledby="flow-h">
+  <header><span class="eyebrow">Overview</span><h2 id="flow-h">The whole pipeline on one page</h2></header>
+  <div class="fig wide">
+    <svg viewBox="0 0 860 330" role="img" aria-label="Pipeline: age prior and observed history are blended into a wake window, which is added to an anchor time to give the next nap; a separate path computes bedtime.">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--muted)"/></marker>
+      </defs>
+      <g style="stroke:var(--muted);stroke-width:1.5;fill:none" marker-end="url(#ar)">
+        <path d="M170 60 H232"/><path d="M170 160 H200 Q215 160 215 140 V95 Q215 80 232 80"/>
+        <path d="M400 70 H452"/><path d="M620 70 H652"/>
+        <path d="M735 105 V142"/>
+        <path d="M170 260 H652"/>
+        <path d="M735 200 V222"/>
+      </g>
+      <g style="stroke-width:1.5">
+        <rect x="10" y="30" width="160" height="62" rx="14" style="fill:var(--lav-soft);stroke:var(--lavender)"/>
+        <rect x="10" y="130" width="160" height="62" rx="14" style="fill:var(--mint-soft);stroke:var(--mint)"/>
+        <rect x="10" y="230" width="160" height="62" rx="14" style="fill:var(--panel-2);stroke:var(--line)"/>
+        <rect x="235" y="35" width="165" height="70" rx="14" style="fill:var(--panel-2);stroke:var(--line)"/>
+        <rect x="455" y="35" width="165" height="70" rx="14" style="fill:var(--panel-2);stroke:var(--line)"/>
+        <rect x="655" y="35" width="160" height="70" rx="14" style="fill:var(--panel-2);stroke:var(--line)"/>
+        <rect x="655" y="145" width="160" height="55" rx="14" style="fill:var(--sun-soft);stroke:var(--sun)"/>
+        <rect x="655" y="225" width="160" height="70" rx="14" style="fill:var(--coral-soft);stroke:var(--coral)"/>
+      </g>
+      <text x="24" y="56" class="t-disp">Age prior</text><text x="24" y="78">wake window, naps</text>
+      <text x="24" y="156" class="t-disp">Last 7 days</text><text x="24" y="178">trimmed medians</text>
+      <text x="24" y="256" class="t-disp">Today so far</text><text x="24" y="278">anchor, nap minutes</text>
+      <text x="249" y="62" class="t-disp">① Blend</text><text x="249" y="86">weight grows with n</text>
+      <text x="469" y="62" class="t-disp">② Position</text><text x="469" y="86">×0.9 · ×1.0 · ×1.1</text>
+      <text x="669" y="62" class="t-disp">③ Clamp</text><text x="669" y="86">0.8·min … 1.2·max</text>
+      <text x="669" y="170" class="t-disp">anchor + window</text><text x="669" y="190">= next nap ±15 min</text>
+      <text x="669" y="252" class="t-disp">Bedtime</text><text x="669" y="274">target −60 … +45</text>
+      <text x="330" y="252">last window, daytime sleep, target</text>
+      <text x="745" y="128">then</text>
+      <text x="727" y="216" text-anchor="end" style="font-size:11px">nap too close to bed → bedtime</text>
+    </svg>
+  </div>
+</section>
+
+<section class="step" aria-labelledby="s1">
+  <header><span class="eyebrow">Step 1 · priors.ts</span><h2 id="s1">Start from what's typical for the age</h2></header>
+  <p>The baby's age in completed weeks picks one row. The midpoint of the wake window range is the starting guess; nap count and length feed into bedtime and the nap duration.</p>
+  <div class="fig">
+    <table>
+      <thead><tr><th>Bracket</th><th>From wk</th><th>Wake window</th><th>Midpoint</th><th>Naps</th><th>Nap length</th><th>Clamp range</th></tr></thead>
+      <tbody id="priorRows"></tbody>
+    </table>
+  </div>
+  <p class="cap">Clamp range = 0.8 × min … 1.2 × max. The prediction can never leave it, however odd the logged data looks.</p>
+</section>
+
+<section class="step" aria-labelledby="s2">
+  <header><span class="eyebrow">Step 2 · observe()</span><h2 id="s2">Measure the baby's own rhythm</h2></header>
+  <p>Finished sleeps from the last 7 days are sorted by start time. The gap between one sleep ending and the next starting is one <em>wake window</em>. Night wakings don't count, and neither do implausible gaps.</p>
+  <div class="fig wide">
+    <svg viewBox="0 0 860 170" role="img" aria-label="A timeline of one day with sleeps as bars and the gaps between them measured as wake windows.">
+      <line x1="30" y1="80" x2="830" y2="80" style="stroke:var(--line);stroke-width:2"/>
+      <!-- 05:00 .. 21:00 → x = 30 + (h-5)*50 -->
+      <rect x="30" y="64" width="100" height="32" rx="8" style="fill:var(--lav-soft);stroke:var(--lavender)"/>
+      <text x="44" y="85" class="t-strong">night</text>
+      <rect x="213" y="64" width="38" height="32" rx="8" style="fill:var(--mint-soft);stroke:var(--mint)"/>
+      <rect x="333" y="64" width="42" height="32" rx="8" style="fill:var(--mint-soft);stroke:var(--mint)"/>
+      <rect x="458" y="64" width="42" height="32" rx="8" style="fill:var(--mint-soft);stroke:var(--mint)"/>
+      <rect x="594" y="64" width="25" height="32" rx="8" style="fill:var(--mint-soft);stroke:var(--mint)"/>
+      <rect x="730" y="64" width="100" height="32" rx="8" style="fill:var(--lav-soft);stroke:var(--lavender)"/>
+      <text x="744" y="85" class="t-strong">night</text>
+      <g style="stroke:var(--sun);stroke-width:1.5;fill:none">
+        <path d="M130 50 V40 H213 V50"/><path d="M251 50 V40 H333 V50"/><path d="M375 50 V40 H458 V50"/><path d="M500 50 V40 H594 V50"/><path d="M619 50 V40 H730 V50"/>
+      </g>
+      <text x="150" y="30" style="fill:var(--sun)">100′</text><text x="272" y="30" style="fill:var(--sun)">98′</text><text x="396" y="30" style="fill:var(--sun)">100′</text><text x="528" y="30" style="fill:var(--sun)">112′</text><text x="656" y="30" style="fill:var(--sun)">133′</text>
+      <text x="222" y="118" style="fill:var(--mint)">45′</text><text x="342" y="118" style="fill:var(--mint)">50′</text><text x="468" y="118" style="fill:var(--mint)">50′</text><text x="592" y="118" style="fill:var(--mint)">30′</text>
+      <g><text x="20" y="150">05</text><text x="170" y="150">08</text><text x="320" y="150">11</text><text x="470" y="150">14</text><text x="620" y="150">17</text><text x="770" y="150">20</text></g>
+    </svg>
+  </div>
+  <div class="grid2">
+    <div class="case"><b>Counts as a wake window</b><p>A gap of 10 min to 8 h between two logged sleeps. A night→night gap that ends inside the night window (default 19:00–07:00) is a night waking and is skipped.</p></div>
+    <div class="case"><b>Counts as a nap length</b><p>A sleep tagged <code>nap</code> lasting 5–240 min.</p></div>
+    <div class="case"><b>Trimmed median</b><p>Sort, drop the top and bottom 10 % (rounded down), take the median. One skipped nap or a 20-minute catnap can't pull the result much.</p></div>
+  </div>
+</section>
+
+<section class="step" aria-labelledby="s3">
+  <header><span class="eyebrow">Step 3 · blendWeight()</span><h2 id="s3">Trust the baby more as the data grows</h2></header>
+  <p>With <em>n</em> observed wake windows, the observed median gets weight <em>w</em> and the age prior gets 1 − <em>w</em>. It starts after 2 observations and tops out at 70 %, so the age norm always keeps at least 30 % of the say.</p>
+  <div class="formula"><span class="k">w</span>       = min(0.7, max(0, (n − 2) / 8))
+<span class="k">window</span>  = (1 − w) · prior_mid · <span class="s">position</span>  +  w · observed_median
+<span class="k">window</span>  = clamp(window, 0.8 · min, 1.2 · max)      <span class="c">// rounded to whole minutes</span></div>
+  <div class="fig">
+    <svg viewBox="0 0 640 250" role="img" aria-label="Chart of the observed-data weight rising linearly from 0 at n=2 to 0.7 at n=7.6 and staying flat afterwards, with confidence bands.">
+      <!-- x: n 0..20 → 60 + n*27 ; y: w 0..1 → 200 - w*220*... use 0..0.8 → 200 - w*200 -->
+      <rect x="60" y="20" width="81" height="180" style="fill:var(--coral-soft)"/>
+      <rect x="141" y="20" width="189" height="180" style="fill:var(--sun-soft)"/>
+      <rect x="330" y="20" width="270" height="180" style="fill:var(--mint-soft)"/>
+      <text x="68" y="36" style="fill:var(--coral)">niedrig</text><text x="149" y="36" style="fill:var(--sun)">mittel</text><text x="338" y="36" style="fill:var(--mint)">hoch</text>
+      <g style="stroke:var(--line)"><line x1="60" y1="200" x2="600" y2="200"/><line x1="60" y1="60" x2="600" y2="60" stroke-dasharray="3 4"/><line x1="60" y1="130" x2="600" y2="130" stroke-dasharray="3 4"/></g>
+      <polyline points="60,200 114,200 265.2,60 600,60" style="fill:none;stroke:var(--lavender);stroke-width:3;stroke-linejoin:round"/>
+      <circle cx="265.2" cy="60" r="5" style="fill:var(--lavender)"/>
+      <text x="275" y="54" class="t-strong">70 % cap from n ≈ 8</text>
+      <text x="22" y="204">0 %</text><text x="16" y="134">35 %</text><text x="16" y="64">70 %</text>
+      <text x="56" y="222">0</text><text x="110" y="222">2</text><text x="137" y="222">3</text><text x="322" y="222">10</text><text x="457" y="222">15</text><text x="592" y="222">20</text>
+      <text x="250" y="244">observed wake windows (n)</text>
+    </svg>
+  </div>
+  <p class="cap">The same <em>n</em> sets the confidence label shown on the ring: under 3 is <span class="chip low">niedrig</span>, 3–9 <span class="chip mid">mittel</span>, 10+ <span class="chip high">hoch</span>. Nap length uses the identical blend on its own count, clamped to 0.6–1.6 × the prior nap length.</p>
+</section>
+
+<section class="step" aria-labelledby="s4">
+  <header><span class="eyebrow">Step 4 · positionFactor()</span><h2 id="s4">First window shorter, last one longer</h2></header>
+  <p>Babies usually manage less awake time right after the night and more before bed. The prior part of the blend is scaled by where in the day the upcoming gap sits, counted by naps already done today (a nap in progress counts as done).</p>
+  <div class="fig wide">
+    <svg viewBox="0 0 860 130" role="img" aria-label="A day split into wake windows: the first scaled by 0.9, middle ones by 1.0, the last by 1.1.">
+      <rect x="20" y="40" width="190" height="44" rx="12" style="fill:var(--lav-soft);stroke:var(--lavender)"/>
+      <rect x="230" y="40" width="200" height="44" rx="12" style="fill:var(--panel-2);stroke:var(--line)"/>
+      <rect x="450" y="40" width="200" height="44" rx="12" style="fill:var(--panel-2);stroke:var(--line)"/>
+      <rect x="670" y="40" width="170" height="44" rx="12" style="fill:var(--sun-soft);stroke:var(--sun)"/>
+      <text x="36" y="67" class="t-strong">wake-up → nap 1  ×0.9</text>
+      <text x="246" y="67" class="t-strong">between naps  ×1.0</text>
+      <text x="466" y="67" class="t-strong">between naps  ×1.0</text>
+      <text x="686" y="67" class="t-strong">→ bed  ×1.1</text>
+      <text x="20" y="28">napsDone = 0</text>
+      <text x="840" y="28" text-anchor="end">napsDone ≥ round(avg naps) − 1</text>
+      <text x="20" y="112">e.g. 3–4 months: avg 3.5 naps → round = 4 → factor 1.1 once 3 naps are done</text>
+    </svg>
+  </div>
+</section>
+
+<section class="step" aria-labelledby="s5">
+  <header><span class="eyebrow">Step 5 · anchor</span><h2 id="s5">Count forward from the right moment</h2></header>
+  <p>The next nap is <strong>anchor + wake window</strong>, shown as a window of ±15 min around it. Which anchor depends on the current state:</p>
+  <div class="cases">
+    <div class="case"><span class="chip mid">asleep · nap</span><b>Predicted wake-up</b><p>Nap start + nap length (at least now + 5 min). The following window counts from there.</p></div>
+    <div class="case"><span class="chip mid">asleep · night</span><b>Night end</b><p>Wake-up is the configured night end (07:00 by default); tomorrow's bedtime is shown.</p></div>
+    <div class="case"><span class="chip high">awake</span><b>Last sleep ended</b><p>Used if it ended within the last 16 hours.</p></div>
+    <div class="case"><span class="chip low">no data</span><b>Assumed wake-up</b><p>Night end, or “now” if it's still before that. The reasoning says so explicitly.</p></div>
+  </div>
+</section>
+
+<section class="step" aria-labelledby="s6">
+  <header><span class="eyebrow">Step 6 · bedtime</span><h2 id="s6">Bedtime bends toward the target, but only so far</h2></header>
+  <div class="formula"><span class="k">bedtime</span> = max(lastNapEnd + lastWindow, target − 45)
+<span class="k">bedtime</span> = clamp(bedtime, target − 60, target + 45)
+<span class="c">if daytime naps today &gt; expected + 30 min</span>                → bedtime <span class="s">+15</span>
+<span class="c">if daytime naps today &lt; expected − 45 min (after target − 3 h)</span> → bedtime <span class="s">−15</span>
+<span class="c">if nextNap &gt; bedtime − napLength / 2</span>                  → no more naps: next sleep is <span class="s">bedtime</span></div>
+  <div class="fig wide">
+    <svg viewBox="0 0 860 120" role="img" aria-label="Bedtime scale around a 19:00 target: allowed range 18:00 to 19:45, with the floor at 18:15.">
+      <!-- 17:30..20:15 → 1 min = 4.8px, x0=40 at 17:30 -->
+      <line x1="40" y1="60" x2="832" y2="60" style="stroke:var(--line);stroke-width:2"/>
+      <rect x="184" y="44" width="504" height="32" rx="8" style="fill:var(--sun-soft);stroke:var(--sun)"/>
+      <rect x="256" y="44" width="432" height="32" rx="8" style="fill:var(--sun-soft)"/>
+      <line x1="472" y1="30" x2="472" y2="90" style="stroke:var(--text);stroke-width:2"/>
+      <text x="446" y="22" class="t-strong">target 19:00</text>
+      <text x="184" y="104">18:00 hard min</text><text x="266" y="36">18:15 usual floor</text><text x="640" y="104">19:45 max</text>
+      <text x="40" y="104">17:30</text><text x="790" y="104">20:15</text>
+    </svg>
+  </div>
+  <p class="cap">The light band is where the formula normally lands; the darker edge down to target − 60 is only reachable via the “little daytime sleep” adjustment. Expected daytime sleep = average naps × prior nap length (3.5 × 45 = 158 min at 3–4 months).</p>
+</section>
+
+<section class="step" aria-labelledby="play-h">
+  <header><span class="eyebrow">Try it</span><h2 id="play-h">Simulate a day</h2></header>
+  <p>This runs the same formulas as <code>predict()</code>: wake at 07:00, bedtime target 19:00, every nap taking exactly the predicted length. It leaves out the ±15 min daytime-sleep nudge. Starts with a 4-month-old who has 12 logged wake windows.</p>
+  <div class="play">
+    <div class="controls">
+      <div class="ctl"><label for="age">Age bracket</label><select id="age"></select></div>
+      <div class="ctl"><label for="n">Observed windows (n) <output id="nOut"></output></label><input id="n" type="range" min="0" max="20" value="12"></div>
+      <div class="ctl"><label for="obs">Observed median <output id="obsOut"></output></label><input id="obs" type="range" min="20" max="400" step="5" value="110"></div>
+      <div class="ctl"><label for="napObs">Observed nap length <output id="napOut"></output></label><input id="napObs" type="range" min="10" max="180" step="5" value="45"></div>
+    </div>
+    <div class="readout" id="readout"></div>
+    <div class="fig wide" style="padding:12px"><svg id="day" viewBox="0 0 860 120" role="img" aria-label="Simulated day timeline"></svg></div>
+    <ol class="why" id="why"></ol>
+  </div>
+</section>
+
+<section class="step" aria-labelledby="feed-h">
+  <header><span class="eyebrow">Bonus</span><h2 id="feed-h">Feeds use a plain interval</h2></header>
+  <p>Next feed = last feed start + interval. The interval is the family's setting, otherwise by age: 150 min up to 4 weeks, 180 up to 12, 210 up to 30, then 240. The push reminders cron reads the same <code>Prediction</code> object, so the ring and the notifications never disagree.</p>
+</section>
+
+<footer>Source: <code>src/lib/sleep/predict.ts</code>, <code>src/lib/sleep/priors.ts</code>, tests in <code>predict.test.ts</code>. The simulator is a JavaScript port for illustration; the app's own output wins where they differ.</footer>
+</div>
+
+<script>
+const P=[
+ ["0–4 weeks",0,35,60,4,6,40],["5–12 weeks",5,60,90,4,5,45],["3–4 months",13,75,120,3,4,45],["5–6 months",22,120,150,3,3,60],
+ ["7–9 months",31,150,210,2,3,75],["10–12 months",44,180,240,2,2,75],["13–18 months",57,240,330,1,2,90],["19+ months",83,300,360,1,1,100]
+].map(([label,from,wmin,wmax,nmin,nmax,nap])=>({label,from,wmin,wmax,nmin,nmax,nap}));
+const $=id=>document.getElementById(id);
+const fmt=m=>{m=Math.round(m);return String(Math.floor(m/60)).padStart(2,"0")+":"+String(((m%60)+60)%60).padStart(2,"0")};
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const blendW=n=>Math.min(.7,Math.max(0,(n-2)/8));
+const conf=n=>n<3?["niedrig","low"]:n<10?["mittel","mid"]:["hoch","high"];
+
+// table
+$("priorRows").innerHTML=P.map((p,i)=>`<tr data-i="${i}"><td>${p.label}</td><td class="num">${p.from}</td><td class="num">${p.wmin}–${p.wmax}′</td><td class="num">${(p.wmin+p.wmax)/2}′</td><td class="num">${p.nmin===p.nmax?p.nmin:p.nmin+"–"+p.nmax}</td><td class="num">${p.nap}′</td><td class="num">${Math.round(.8*p.wmin)}–${Math.round(1.2*p.wmax)}′</td></tr>`).join("");
+$("age").innerHTML=P.map((p,i)=>`<option value="${i}">${p.label}</option>`).join("");
+$("age").value="2";
+
+function run(){
+  const p=P[+$("age").value], n=+$("n").value, obs=+$("obs").value, napObs=+$("napObs").value;
+  $("nOut").textContent=n; $("obsOut").textContent=n>0?obs+" min":"— (n = 0)"; $("napOut").textContent=n>0?napObs+" min":"—";
+  document.querySelectorAll("#priorRows tr").forEach(tr=>tr.classList.toggle("hl",tr.dataset.i===$("age").value));
+  const mid=(p.wmin+p.wmax)/2, expN=(p.nmin+p.nmax)/2, w=blendW(n);
+  const factor=k=>k===0?.9:k>=Math.max(1,Math.round(expN)-1)?1.1:1;
+  const win=k=>{const pw=mid*factor(k);const b=n>0?(1-w)*pw+w*obs:pw;return Math.round(clamp(b,.8*p.wmin,1.2*p.wmax))};
+  const nNaps=n; const wN=blendW(nNaps);
+  const nap=Math.round(clamp(nNaps>0?(1-wN)*p.nap+wN*napObs:p.nap,.6*p.nap,1.6*p.nap));
+  const target=19*60, lastWin=win(Math.max(1,Math.round(expN)-1));
+  let wake=7*60,k=0,naps=[],bed=null,steps=[];
+  for(let guard=0;guard<12;guard++){
+    const ww=win(k), start=wake+ww;
+    let b=Math.max(wake+lastWin,target-45); b=clamp(b,target-60,target+45);
+    if(start>b-nap/2){bed=b;steps.push({from:wake,to:b,ww:b-wake,f:factor(k),bed:true});break}
+    steps.push({from:wake,to:start,ww,f:factor(k)}); naps.push([start,start+nap]); wake=start+nap; k++;
+  }
+  const [cl,cc]=conf(n);
+  $("readout").innerHTML=`
+   <div class="ro"><span>Observed weight</span><strong>${Math.round(w*100)} %</strong><small>prior keeps ${100-Math.round(w*100)} %</small></div>
+   <div class="ro"><span>First window</span><strong>${win(0)} min</strong><small>×0.9 on the prior</small></div>
+   <div class="ro"><span>Nap length</span><strong>${nap} min</strong><small>prior ${p.nap} min</small></div>
+   <div class="ro"><span>Bedtime</span><strong>${fmt(bed)}</strong><small>after ${naps.length} naps</small></div>
+   <div class="ro"><span>Confidence</span><strong><span class="chip ${cc}">${cl}</span></strong><small>from n = ${n}</small></div>`;
+  // timeline 06:30..20:30 → x = 20 + (m-390)*820/840
+  const X=m=>20+(m-390)*820/840;
+  let s=`<line x1="20" y1="60" x2="840" y2="60" style="stroke:var(--line);stroke-width:2"/>`;
+  s+=`<rect x="20" y="44" width="${X(420)-20}" height="32" rx="6" style="fill:var(--lav-soft);stroke:var(--lavender)"/>`;
+  s+=`<rect x="${X(bed)}" y="44" width="${840-X(bed)}" height="32" rx="6" style="fill:var(--lav-soft);stroke:var(--lavender)"/>`;
+  naps.forEach(([a,b])=>{s+=`<rect x="${X(a)}" y="44" width="${X(b)-X(a)}" height="32" rx="6" style="fill:var(--mint-soft);stroke:var(--mint)"/><rect x="${X(a-15)}" y="80" width="${X(a+15)-X(a-15)}" height="4" rx="2" style="fill:var(--sun)"/>`});
+  steps.forEach(st=>{const cx=(X(st.from)+X(st.to))/2;s+=`<text x="${cx}" y="34" text-anchor="middle" style="fill:${st.f===.9?"var(--lavender)":st.f===1.1?"var(--sun)":"var(--muted)"}">${Math.round(st.ww)}′</text>`});
+  s+=`<text x="${X(bed)}" y="100" text-anchor="middle" class="t-strong">bed ${fmt(bed)}</text>`;
+  for(let h=7;h<=20;h+=2)s+=`<text x="${X(h*60)}" y="118" text-anchor="middle">${String(h).padStart(2,"0")}</text>`;
+  $("day").innerHTML=s;
+  const why=[`Age ${p.label}: typical wake window ${p.wmin}–${p.wmax} min, midpoint ${mid}.`,
+    n>0?`Blend ${Math.round(w*100)} % observed (${obs} min) + ${100-Math.round(w*100)} % prior, clamped to ${Math.round(.8*p.wmin)}–${Math.round(1.2*p.wmax)} min.`:`No observations: prior only.`];
+  steps.forEach((st,i)=>why.push(st.bed?`${fmt(st.from)} + ${win(k)} min would be ${fmt(st.from+win(k))}, later than bedtime − ${Math.round(nap/2)} min → next sleep is the night at ${fmt(st.to)}.`
+    :`${fmt(st.from)} + ${st.ww} min (×${st.f.toFixed(1)}) → nap ${i+1} at ${fmt(st.to)}, window ${fmt(st.to-15)}–${fmt(st.to+15)}, ends ${fmt(st.to+nap)}.`));
+  $("why").innerHTML=why.map(t=>`<li>${t}</li>`).join("");
+}
+["age","n","obs","napObs"].forEach(id=>$(id).addEventListener("input",run));
+run();
+</script>
+</body>
+</html>

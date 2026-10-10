@@ -22,6 +22,9 @@ const toneClass: Record<NonNullable<SegmentedProps<string>["tone"]>, string> = {
 };
 
 export function Segmented<T extends string>({ value, onChange, options, tone = "lavender", label }: SegmentedProps<T>) {
+  // Four or more icon + label pills don't fit side by side on a phone, so the
+  // icon moves above the label to keep every option inside the bar.
+  const stacked = options.length >= 4 && options.some((o) => o.icon);
   return (
     <div role="radiogroup" aria-label={label} className="flex gap-1 rounded-2xl bg-white/6 p-1">
       {options.map((o) => {
@@ -33,12 +36,12 @@ export function Segmented<T extends string>({ value, onChange, options, tone = "
             role="radio"
             aria-checked={active}
             onClick={() => onChange(o.value)}
-            className={`flex min-h-12 flex-1 items-center justify-center gap-1.5 rounded-xl px-2 text-sm font-semibold transition-colors ${
-              active ? toneClass[tone] : "text-muted"
-            }`}
+            className={`flex min-h-12 min-w-0 flex-1 items-center justify-center rounded-xl font-semibold transition-colors ${
+              stacked ? "flex-col gap-0.5 px-1 py-1.5 text-xs" : "gap-1.5 px-2 text-sm"
+            } ${active ? toneClass[tone] : "text-muted"}`}
           >
             {o.icon}
-            {o.label}
+            <span className="max-w-full truncate">{o.label}</span>
           </button>
         );
       })}

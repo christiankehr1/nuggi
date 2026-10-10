@@ -22,7 +22,7 @@ export default async function EinstellungenPage() {
       <Suspense>
         <BabiesSection babies={babies} tz={tz} />
       </Suspense>
-      <RemindersSection vapidPublicKey={pushConfigured() ? env().VAPID_PUBLIC_KEY! : null} />
+      <RemindersSection vapidPublicKey={pushConfigured() ? env().VAPID_PUBLIC_KEY! : null} babies={babies} />
       <DailyRemindersSection reminders={family.dailyReminders} />
       <FamilySection family={family} member={member} members={members} />
       <section className="card flex flex-col gap-3 p-5">

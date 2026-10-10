@@ -2,15 +2,18 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { pushStatusAction, sendTestPushAction, subscribePushAction, unsubscribePushAction } from "@/actions/push";
+import { ReminderKinds } from "@/components/einstellungen/ReminderKinds";
 import { BellIcon } from "@/components/icons";
 import { useToast } from "@/components/ui/Toast";
 import { de } from "@/i18n/de";
 import { isIOS, isStandalone, pushSupported, urlBase64ToUint8Array } from "@/lib/pwa";
+import type { Baby } from "@/lib/types";
 
 type Status = "loading" | "unsupported" | "not-standalone" | "denied" | "off" | "on" | "not-configured";
 
 interface RemindersSectionProps {
   vapidPublicKey: string | null;
+  babies: Baby[];
 }
 
 /** Reject after `ms` so a stuck service-worker promise can never freeze the UI. */
@@ -57,7 +60,7 @@ async function activeRegistration(): Promise<ServiceWorkerRegistration> {
   return reg;
 }
 
-export function RemindersSection({ vapidPublicKey }: RemindersSectionProps) {
+export function RemindersSection({ vapidPublicKey, babies }: RemindersSectionProps) {
   const toast = useToast();
   const [status, setStatus] = useState<Status>("loading");
   const [detail, setDetail] = useState<string | null>(null);
@@ -196,6 +199,7 @@ export function RemindersSection({ vapidPublicKey }: RemindersSectionProps) {
         </>
       ) : null}
       {detail ? <p className="text-xs text-muted">{detail}</p> : null}
+      <ReminderKinds babies={babies} />
       <p className="text-xs text-muted">{de.settings.remindersHint}</p>
     </section>
   );

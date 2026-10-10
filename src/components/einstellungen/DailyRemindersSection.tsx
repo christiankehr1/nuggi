@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { saveDailyRemindersAction } from "@/actions/settings";
-import { Toggle } from "@/components/einstellungen/BabyForm";
+import { Toggle } from "@/components/ui/Toggle";
 import { ClockIcon, PlusIcon } from "@/components/icons";
 import { Sheet } from "@/components/ui/Sheet";
 import { useToast } from "@/components/ui/Toast";

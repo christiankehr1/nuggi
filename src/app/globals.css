@@ -29,7 +29,20 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
+  /* iOS 26+ draws a "Liquid Glass" blur over the translucent status bar of an
+     installed web app; it fades out roughly 40px below the bar. Page titles
+     start below that band: --status-bar-fade is 2.75rem whenever there is a
+     status-bar inset at all (min(inset × 100, 2.75rem)) and 0 in a browser
+     tab, where content never sits under the status bar. */
+  --status-bar-fade: min(calc(var(--safe-top) * 100), 2.75rem);
+  --top-inset: max(1rem, calc(var(--safe-top) + var(--status-bar-fade)));
+  /* Floating tab bar: a pill --tabbar-gap above the home-indicator inset.
+     --tabbar-clearance is the distance from the screen bottom to the pill's top
+     edge; --content-bottom pads pages so they scroll fully clear of it. */
   --tabbar-height: 64px;
+  --tabbar-gap: 12px;
+  --tabbar-clearance: calc(var(--tabbar-height) + var(--tabbar-gap) + var(--safe-bottom));
+  --content-bottom: calc(var(--tabbar-clearance) + 1.25rem);
 }
 
 @theme inline {
@@ -57,7 +70,10 @@
   --spacing-tap: var(--tap);
   --spacing-safe-top: var(--safe-top);
   --spacing-safe-bottom: var(--safe-bottom);
+  --spacing-top-inset: var(--top-inset);
   --spacing-tabbar: var(--tabbar-height);
+  --spacing-tabbar-clearance: var(--tabbar-clearance);
+  --spacing-content-bottom: var(--content-bottom);
 }
 
 @layer base {
@@ -258,6 +274,78 @@
   animation: pulse-soft 2.4s ease-in-out infinite;
 }
 
+/* Tab bar icons: a small playful motion each time a tab is tapped. The
+   TabBar remounts the icon under .tab-anim on every tap, restarting these. */
+.tab-anim :is(.tab-hand-min, .tab-hand-hour, .tab-gear) {
+  transform-box: view-box;
+  transform-origin: 12px 12px;
+}
+.tab-anim .tab-hand-min {
+  animation: tab-spin 700ms cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+.tab-anim .tab-hand-hour {
+  animation: tab-spin-hour 700ms cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+.tab-anim .tab-gear {
+  animation: tab-gear 650ms cubic-bezier(0.3, 0.7, 0.2, 1.2);
+}
+.tab-anim .tab-line {
+  transform-box: view-box;
+  transform-origin: 5px 12px;
+  animation: tab-line 480ms cubic-bezier(0.2, 0.8, 0.2, 1.3) backwards;
+}
+.tab-anim .tab-bar {
+  transform-box: view-box;
+  transform-origin: 12px 18.5px;
+  animation: tab-bar 520ms cubic-bezier(0.2, 0.8, 0.2, 1.4) backwards;
+}
+.tab-anim :is(.tab-line, .tab-bar):nth-child(2) {
+  animation-delay: 70ms;
+}
+.tab-anim :is(.tab-line, .tab-bar):nth-child(3) {
+  animation-delay: 140ms;
+}
+@keyframes tab-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes tab-spin-hour {
+  from {
+    transform: rotate(-30deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+@keyframes tab-gear {
+  from {
+    transform: rotate(-90deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+@keyframes tab-line {
+  from {
+    transform: scaleX(0.2);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes tab-bar {
+  from {
+    transform: scaleY(0.15);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -276,11 +364,4 @@
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
-}
-
-/* Standalone (installed) mode: reserve the status bar area */
-@media (display-mode: standalone) {
-  body {
-    padding-top: 0;
-  }
 }

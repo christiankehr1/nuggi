@@ -32,6 +32,8 @@ export const REMINDER_DEDUPE_ROUND_MINUTES = 10;
  * per local day, so late and on-time runs never both send.
  */
 export const DAILY_REMINDER_LATE_MINUTES = 20;
+/** A breast feed still "running" this long after its cue is a forgotten timer: no cue any more. */
+export const BREAST_CUE_GRACE_MINUTES = 60;
 export const PUSH_MAX_FAILURES = 3;
 
 /** Theme colours (kept in sync with globals.css tokens). */

@@ -40,7 +40,7 @@ export function InstallBanner() {
       role="dialog"
       aria-label={de.install.title}
       className="card fixed inset-x-3 z-40 mx-auto max-w-md p-4 animate-fade-up"
-      style={{ bottom: "calc(var(--tabbar-height) + var(--safe-bottom) + 12px)", background: "rgba(19, 22, 58, 0.97)" }}
+      style={{ bottom: "calc(var(--tabbar-clearance) + 12px)", background: "rgba(19, 22, 58, 0.97)" }}
     >
       <div className="flex items-start gap-3">
         <NuggiLogo size={40} />

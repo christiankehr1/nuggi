@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-16 -16 892 162" width="892" height="162" role="img" aria-label="A day split into wake windows: the first scaled by 0.9, middle ones by 1.0, the last by 1.1."><style>
+svg{--panel:#ffffff;--panel-2:#ecebfb;--line:rgba(27,30,75,.14);--text:#15173d;--muted:#5a5c8f;--lavender:#5b5ce0;--lav-soft:rgba(91,92,224,.14);--sun:#b07a10;--sun-soft:rgba(214,158,40,.18);--coral:#c2553b;--coral-soft:rgba(194,85,59,.14);--mint:#1f8a6e;--mint-soft:rgba(31,138,110,.14)}
+@media (prefers-color-scheme: dark){svg{--panel:#13163a;--panel-2:#1b1e4b;--line:rgba(255,255,255,.12);--text:#f4f4fa;--muted:#a9a9d6;--lavender:#8b8cf6;--lav-soft:rgba(139,140,246,.2);--sun:#f5c86b;--sun-soft:rgba(245,200,107,.2);--coral:#e8846b;--coral-soft:rgba(232,132,107,.2);--mint:#9be3cf;--mint-soft:rgba(155,227,207,.2)}}
+text{font-family:ui-monospace,"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;fill:var(--muted);font-size:12px}
+.t-strong{fill:var(--text);font-weight:600}
+.t-disp{font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;fill:var(--text);font-size:15px;font-weight:700}
+</style><rect x="-16" y="-16" width="892" height="162" rx="16" style="fill:var(--panel)"/>
+      <rect x="20" y="40" width="190" height="44" rx="12" style="fill:var(--lav-soft);stroke:var(--lavender)"></rect>
+      <rect x="230" y="40" width="200" height="44" rx="12" style="fill:var(--panel-2);stroke:var(--line)"></rect>
+      <rect x="450" y="40" width="200" height="44" rx="12" style="fill:var(--panel-2);stroke:var(--line)"></rect>
+      <rect x="670" y="40" width="170" height="44" rx="12" style="fill:var(--sun-soft);stroke:var(--sun)"></rect>
+      <text x="36" y="67" class="t-strong">wake-up → nap 1  ×0.9</text>
+      <text x="246" y="67" class="t-strong">between naps  ×1.0</text>
+      <text x="466" y="67" class="t-strong">between naps  ×1.0</text>
+      <text x="686" y="67" class="t-strong">→ bed  ×1.1</text>
+      <text x="20" y="28">napsDone = 0</text>
+      <text x="840" y="28" text-anchor="end">napsDone ≥ round(avg naps) − 1</text>
+      <text x="20" y="112">e.g. 3–4 months: avg 3.5 naps → round = 4 → factor 1.1 once 3 naps are done</text>
+    </svg>

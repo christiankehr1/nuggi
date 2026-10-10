@@ -18,7 +18,7 @@ export function AddMenu({ babyId, tz }: { babyId: string; tz: string }) {
         onClick={() => setMenu(true)}
         aria-label={de.common.add}
         className="btn btn-primary fixed right-4 z-30 h-14 w-14 rounded-full px-0 shadow-lg"
-        style={{ bottom: "calc(var(--tabbar-height) + var(--safe-bottom) + 16px)" }}
+        style={{ bottom: "calc(var(--tabbar-clearance) + 16px)" }}
       >
         <PlusIcon size={28} />
       </button>
