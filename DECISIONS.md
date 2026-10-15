@@ -39,6 +39,11 @@ Choices made while building Nuggi that are not obvious from the code.
   (partial unique index for running timers, kind/subtype checks, case-insensitive
   member names, cascade) are verified without Docker or a Supabase project.
   `gen_random_uuid()` is built into Postgres 13+, so no `pgcrypto` extension.
+- **Event kinds: `sleep`, `feed`, `care`.** `care` (subtype `bath`, "Baden") is
+  a manual entry from the Verlauf "+" sheet with start and end, no quick action
+  or running timer on Heute, and it is ignored by prediction and statistics.
+  Adding another care subtype means: `EVENT_SUBTYPES` in `types.ts`, the Zod
+  enum, a migration that re-creates `events_subtype_check`, label and icon.
 - **`npm run db:migrate` uses `pg` + `DATABASE_URL`** as a convenience; the
   README also documents the Supabase SQL editor path. Migrations are idempotent.
 - **Scripts do not import `server-only` modules.** `scripts/lib/supabase.ts`

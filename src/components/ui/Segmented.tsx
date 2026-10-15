@@ -10,7 +10,7 @@ interface SegmentedProps<T extends string> {
   value: T;
   onChange: (value: T) => void;
   options: Option<T>[];
-  tone?: "lavender" | "sun" | "coral" | "mint";
+  tone?: "lavender" | "sun" | "coral" | "mint" | "sky";
   label?: string;
 }
 
@@ -19,6 +19,7 @@ const toneClass: Record<NonNullable<SegmentedProps<string>["tone"]>, string> = {
   sun: "bg-sun text-navy-900",
   coral: "bg-coral text-navy-900",
   mint: "bg-mint text-navy-900",
+  sky: "bg-sky text-navy-900",
 };
 
 export function Segmented<T extends string>({ value, onChange, options, tone = "lavender", label }: SegmentedProps<T>) {

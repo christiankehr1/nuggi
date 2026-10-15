@@ -134,6 +134,8 @@ export const de = {
     breast: "Stillen",
     bottle: "Fläschchen",
     solids: "Beikost",
+    care: "Baden",
+    bath: "Baden",
     sideL: "links",
     sideR: "rechts",
     sideBoth: "beide Seiten",

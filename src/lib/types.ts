@@ -4,10 +4,18 @@
  * server/client boundary unchanged. Pure modules parse them as needed.
  */
 
-export type EventKind = "sleep" | "feed";
+export type EventKind = "sleep" | "feed" | "care";
 export type SleepSubtype = "nap" | "night";
 export type FeedSubtype = "breast" | "bottle" | "solids";
-export type EventSubtype = SleepSubtype | FeedSubtype;
+/** Care events are logged manually (no running timer on Heute), e.g. a bath. */
+export type CareSubtype = "bath";
+export type EventSubtype = SleepSubtype | FeedSubtype | CareSubtype;
+
+export const EVENT_SUBTYPES: Record<EventKind, readonly EventSubtype[]> = {
+  sleep: ["nap", "night"],
+  feed: ["breast", "bottle", "solids"],
+  care: ["bath"],
+};
 export type Side = "L" | "R" | "both";
 export type MeasurementKind = "weight_g" | "height_cm" | "head_cm" | "temp_c";
 export type Sex = "f" | "m";

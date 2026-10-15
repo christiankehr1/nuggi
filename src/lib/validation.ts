@@ -13,8 +13,11 @@ export const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Ungültiges Datu
 
 export const hm = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Ungültige Uhrzeit");
 
+export const eventKind = z.enum(["sleep", "feed", "care"]);
 export const sleepSubtype = z.enum(["nap", "night"]);
 export const feedSubtype = z.enum(["breast", "bottle", "solids"]);
+export const careSubtype = z.enum(["bath"]);
+export const eventSubtype = z.union([sleepSubtype, feedSubtype, careSubtype]);
 export const side = z.enum(["L", "R", "both"]);
 export const measurementKind = z.enum(["weight_g", "height_cm", "head_cm", "temp_c"]);
 export const sex = z.enum(["f", "m"]);

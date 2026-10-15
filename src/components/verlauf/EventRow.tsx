@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BottleIcon, BowlIcon, BreastIcon, MoonIcon, SunIcon } from "@/components/icons";
+import { BathIcon, BottleIcon, BowlIcon, BreastIcon, MoonIcon, SunIcon } from "@/components/icons";
 import { EditEventSheet } from "@/components/verlauf/EditEventSheet";
 import { de } from "@/i18n/de";
 import { durationLabel, eventDetail, eventDurationMinutes, timeRange } from "@/lib/format";
@@ -19,6 +19,8 @@ function iconFor(e: BabyEvent) {
       return <BottleIcon size={22} className="text-mint" />;
     case "solids":
       return <BowlIcon size={22} className="text-mint" />;
+    case "bath":
+      return <BathIcon size={22} className="text-sky" />;
   }
 }
 

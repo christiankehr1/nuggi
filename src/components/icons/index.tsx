@@ -47,6 +47,17 @@ export function MoonIcon(props: IconProps) {
   );
 }
 
+export function BathIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M4 12.5h16v2.5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-2.5Z" />
+      <path d="M6 12.5V6.2a2.2 2.2 0 0 1 4.3-.7" />
+      <path d="M6.5 20v1.5M17.5 20v1.5" />
+      <path d="M13 8.5v.01M15.5 6.5v.01M15.5 9.8v.01" strokeWidth="2.4" opacity="0.8" />
+    </svg>
+  );
+}
+
 export function BottleIcon(props: IconProps) {
   return (
     <svg {...base(props)}>

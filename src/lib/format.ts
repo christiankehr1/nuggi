@@ -28,8 +28,21 @@ export function subtypeLabel(e: Pick<BabyEvent, "kind" | "subtype">): string {
       return de.events.bottle;
     case "solids":
       return de.events.solids;
+    case "bath":
+      return de.events.bath;
     default:
-      return e.kind === "sleep" ? de.events.sleep : de.events.feed;
+      return kindLabel(e.kind);
+  }
+}
+
+export function kindLabel(kind: BabyEvent["kind"]): string {
+  switch (kind) {
+    case "sleep":
+      return de.events.sleep;
+    case "feed":
+      return de.events.feed;
+    case "care":
+      return de.events.care;
   }
 }
 
@@ -48,7 +61,7 @@ export function eventDetail(e: BabyEvent): string {
     const s = sideLabel(e.side);
     if (s) parts.push(s);
   }
-  if (e.subtype === "solids" && e.note) parts.push(`· ${e.note}`);
+  if ((e.subtype === "solids" || e.subtype === "bath") && e.note) parts.push(`· ${e.note}`);
   return parts.join(" ");
 }
 

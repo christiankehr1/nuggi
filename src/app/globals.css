@@ -16,6 +16,8 @@
   --coral-soft: rgba(232, 132, 107, 0.18);
   --mint: #9be3cf;
   --mint-soft: rgba(155, 227, 207, 0.18);
+  --sky: #8ccbf5;
+  --sky-soft: rgba(140, 203, 245, 0.18);
   --text: #f4f4fa;
   --muted: #a9a9d6;
   --danger: #ff6b8a;
@@ -58,6 +60,8 @@
   --color-coral-soft: var(--coral-soft);
   --color-mint: var(--mint);
   --color-mint-soft: var(--mint-soft);
+  --color-sky: var(--sky);
+  --color-sky-soft: var(--sky-soft);
   --color-text: var(--text);
   --color-muted: var(--muted);
   --color-danger: var(--danger);

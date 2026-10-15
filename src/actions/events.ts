@@ -15,8 +15,8 @@ import {
   restoreEvent,
   updateEvent,
 } from "@/lib/db/events";
-import type { BabyEvent } from "@/lib/types";
-import { amountMl, feedSubtype, isoDateTime, note, side, sleepSubtype, uuid } from "@/lib/validation";
+import { EVENT_SUBTYPES, type BabyEvent } from "@/lib/types";
+import { amountMl, eventKind, eventSubtype, feedSubtype, isoDateTime, note, side, sleepSubtype, uuid } from "@/lib/validation";
 
 /**
  * Event actions take plain JSON (not FormData) so the offline outbox can
@@ -182,15 +182,15 @@ export async function logFeedAction(input: unknown): Promise<ActionResult<BabyEv
 const createEventSchema = z
   .object({
     babyId: uuid,
-    kind: z.enum(["sleep", "feed"]),
-    subtype: z.union([sleepSubtype, feedSubtype]),
+    kind: eventKind,
+    subtype: eventSubtype,
     startedAt: isoDateTime,
     endedAt: isoDateTime.nullable(),
     amountMl: amountMl.nullable().optional(),
     side: side.nullable().optional(),
     note: note.nullable().optional(),
   })
-  .refine((v) => (v.kind === "sleep" ? ["nap", "night"] : ["breast", "bottle", "solids"]).includes(v.subtype), {
+  .refine((v) => EVENT_SUBTYPES[v.kind].includes(v.subtype), {
     message: de.errors.validation,
   })
   .refine((v) => !v.endedAt || v.endedAt >= v.startedAt, { message: de.events.endBeforeStart });
@@ -225,7 +225,7 @@ export async function createEventAction(input: unknown): Promise<ActionResult<Ba
 const updateEventSchema = z
   .object({
     id: uuid,
-    subtype: z.union([sleepSubtype, feedSubtype]).optional(),
+    subtype: eventSubtype.optional(),
     startedAt: isoDateTime.optional(),
     endedAt: isoDateTime.nullable().optional(),
     amountMl: amountMl.nullable().optional(),
@@ -243,8 +243,7 @@ export async function updateEventAction(input: unknown): Promise<ActionResult<Ba
   const { id, ...patch } = parsed.data;
   const existing = await getEvent(scope, id);
   if (!existing) return fail(de.errors.notFound, "not_found");
-  const validSubtypes = existing.kind === "sleep" ? ["nap", "night"] : ["breast", "bottle", "solids"];
-  if (patch.subtype && !validSubtypes.includes(patch.subtype)) return fail(de.errors.validation, "validation");
+  if (patch.subtype && !EVENT_SUBTYPES[existing.kind].includes(patch.subtype)) return fail(de.errors.validation, "validation");
   const start = patch.startedAt ?? existing.startedAt;
   const end = patch.endedAt === undefined ? existing.endedAt : patch.endedAt;
   if (end && end < start) return fail(de.events.endBeforeStart, "validation");
@@ -283,8 +282,8 @@ const restoreSchema = z.object({
   id: uuid,
   babyId: uuid,
   memberId: uuid.nullable(),
-  kind: z.enum(["sleep", "feed"]),
-  subtype: z.union([sleepSubtype, feedSubtype]),
+  kind: eventKind,
+  subtype: eventSubtype,
   startedAt: isoDateTime,
   endedAt: isoDateTime.nullable(),
   amountMl: amountMl.nullable(),

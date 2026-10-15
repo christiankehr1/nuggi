@@ -145,6 +145,20 @@ describe("migrations", () => {
     ).rejects.toThrow();
   });
 
+  it("accepts care/bath events and rejects other care subtypes", async () => {
+    const { familyId, babyId } = await seedFamily("Bath", "BBB");
+    await pg.query(
+      "insert into events (family_id, baby_id, kind, subtype, started_at, ended_at) values ($1,$2,'care','bath',now() - interval '20 minutes', now())",
+      [familyId, babyId],
+    );
+    await expect(
+      pg.query(
+        "insert into events (family_id, baby_id, kind, subtype, started_at) values ($1,$2,'care','nap',now())",
+        [familyId, babyId],
+      ),
+    ).rejects.toThrow();
+  });
+
   it("member names are unique per family, case-insensitively", async () => {
     const { familyId } = await seedFamily("Members", "DDD");
     await pg.query("insert into members (family_id, name) values ($1, 'Mama')", [familyId]);

@@ -15,7 +15,8 @@ import { Stepper } from "@/components/ui/Stepper";
 import { useToast } from "@/components/ui/Toast";
 import { de } from "@/i18n/de";
 import { submit } from "@/lib/client-submit";
-import type { BabyEvent, EventKind, EventSubtype, Side } from "@/lib/types";
+import { subtypeLabel } from "@/lib/format";
+import { EVENT_SUBTYPES, type BabyEvent, type EventKind, type EventSubtype, type Side } from "@/lib/types";
 
 interface EditEventSheetProps {
   open: boolean;
@@ -66,20 +67,11 @@ function EventForm({
 
   const changeKind = (k: EventKind) => {
     setKind(k);
-    setSubtype(k === "sleep" ? "nap" : "bottle");
+    setSubtype(k === "sleep" ? "nap" : k === "feed" ? "bottle" : "bath");
   };
 
-  const subtypeOptions =
-    kind === "sleep"
-      ? [
-          { value: "nap" as const, label: de.events.nap },
-          { value: "night" as const, label: de.events.night },
-        ]
-      : [
-          { value: "breast" as const, label: de.events.breast },
-          { value: "bottle" as const, label: de.events.bottle },
-          { value: "solids" as const, label: de.events.solids },
-        ];
+  const subtypeOptions = EVENT_SUBTYPES[kind].map((value) => ({ value, label: subtypeLabel({ kind, subtype: value }) }));
+  const tone = kind === "sleep" ? "lavender" : kind === "feed" ? "mint" : "sky";
 
   const startIso = start ? fromLocal(start, tz) : null;
   const endIso = running ? null : end ? fromLocal(end, tz) : null;
@@ -143,17 +135,20 @@ function EventForm({
           options={[
             { value: "sleep", label: de.events.sleep },
             { value: "feed", label: de.events.feed },
+            { value: "care", label: de.events.care },
           ]}
           label={de.events.kind}
         />
       ) : null}
-      <Segmented
-        value={subtype}
-        onChange={(v) => setSubtype(v)}
-        options={subtypeOptions}
-        tone={kind === "sleep" ? "lavender" : "mint"}
-        label={de.events.subtype}
-      />
+      {subtypeOptions.length > 1 ? (
+        <Segmented
+          value={subtype}
+          onChange={(v) => setSubtype(v)}
+          options={subtypeOptions}
+          tone={tone}
+          label={de.events.subtype}
+        />
+      ) : null}
       <div className="grid grid-cols-2 gap-3">
         <label className="flex min-w-0 flex-col gap-1.5">
           <span className="text-sm font-medium text-muted">{de.events.start}</span>
